@@ -74,7 +74,7 @@ Select a meaningful use case for your CRUD operations. Some examples:
 ### **4. Frontend Development (React.js)**
 
 * Create a user-friendly interface to interact with your API (**Some portion developed, follow task manager app)**.
-* Implement **forms** for adding and updating records.
+* Implement **forms** for adding, showing, deleting and updating records (CRUD).
 * Display data using  **tables, cards, or lists (Follow how we showed data in task manager app)**
 
 ### **5. Authentication & Authorization**
