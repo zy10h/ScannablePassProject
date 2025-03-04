@@ -100,6 +100,7 @@ Select a meaningful use case for your CRUD operations. Some examples:
 ## **Submission Requirements**
 
 * **JIRA Project Board URL** (user stories ).
+* **Requirment diagram** (Using project features)
 * **GitHub Repository** (`backend/` and `frontend/`).
 * **README.md** with:
 
