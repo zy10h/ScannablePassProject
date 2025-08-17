@@ -74,8 +74,7 @@ project-root/
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/digital-event-pass-generator.git
-cd digital-event-pass-generator
+git clone https://github.com/abdullah-ubaid/ScannablePassProject.git
 ```
 
 ### 2️⃣ Setup Backend
