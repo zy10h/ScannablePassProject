@@ -7,18 +7,34 @@ const generateToken = (id) => {
 };
 
 const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
   try {
-    const userExists = await User.findOne({ email });
-    if (userExists)
-      return res.status(400).json({ message: "User already exists" });
+    let { name, email, password, role, university, address } = req.body;
 
-    const user = await User.create({ name, email, password });
+    if (Array.isArray(role)) {
+      role = role[0];
+    }
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role,
+      university,
+      address,
+    });
+
     res.status(201).json({
       id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
+      university: user.university,
+      address: user.address,
       token: generateToken(user.id),
     });
   } catch (error) {
@@ -35,6 +51,7 @@ const loginUser = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        role: user.role,
         token: generateToken(user.id),
       });
     } else {
@@ -58,6 +75,24 @@ const getProfile = async (req, res) => {
       university: user.university,
       address: user.address,
     });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const getAllProfiles = async (req, res) => {
+  try {
+    const users = await User.find();
+
+    const userData = users.map((user) => ({
+      name: user.name,
+      email: user.email,
+      university: user.university,
+      address: user.address,
+      _id: user._id,
+    }));
+
+    res.status(200).json(userData);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -88,4 +123,10 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, updateUserProfile, getProfile };
+module.exports = {
+  registerUser,
+  loginUser,
+  updateUserProfile,
+  getProfile,
+  getAllProfiles,
+};

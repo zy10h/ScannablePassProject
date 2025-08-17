@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../axiosConfig';
+import Spinner from '../components/spinner';
 
 const Profile = () => {
   const { user } = useAuth(); // Access user token from context
@@ -17,7 +18,7 @@ const Profile = () => {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const response = await axiosInstance.get('/api/auth/profile', {
+        const response = await axiosInstance.get('/auth/profile', {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         setFormData({
@@ -40,7 +41,7 @@ const Profile = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axiosInstance.put('/api/auth/profile', formData, {
+      await axiosInstance.put('/auth/profile', formData, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       alert('Profile updated successfully!');
@@ -52,7 +53,7 @@ const Profile = () => {
   };
 
   if (loading) {
-    return <div className="text-center mt-20">Loading...</div>;
+    return <Spinner/>;
   }
 
   return (
