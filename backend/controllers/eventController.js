@@ -26,6 +26,7 @@ exports.createEvent = async (req, res) => {
       createdBy: req.user._id,
       availableSeats,
       seatsFilled,
+      registeredPeople: [],
     });
 
     const savedEvent = await event.save();

@@ -11,26 +11,37 @@ const Navbar = () => {
     navigate("/login");
   };
 
+  const handleProfileClick = () => {
+    if (user?.role === "admin") {
+      navigate("/admin-dashboard");
+    } else {
+      navigate("/profile");
+    }
+  };
+
+  const isAdmin = user?.role === "admin";
+
   return (
-    <nav
-      className="text-white p-4 flex justify-between items-center h-20 bg-opacity-100"
-      style={{ backgroundColor: "#abc4cb" }}
-    >
-      <Link to="/" className="text-2xl font-bold">
-        <img src={logo} alt="GoVibe Logo" className="h-20 w-15" />
+    <nav className="bg-gray-800 text-white p-4 flex justify-between items-center shadow-md">
+      <Link to="/" className="flex items-center">
+        <img src={logo} alt="GoVibe Logo" className="h-14 w-auto" />
       </Link>
-      <div>
+
+      <div className="flex items-center space-x-3">
         {user ? (
           <>
-            <Link to="/tasks" className="mr-4">
-              CRUD
-            </Link>
-            <Link to="/profile" className="mr-4">
-              Profile
-            </Link>
+            {isAdmin && (
+              <button
+                onClick={handleProfileClick}
+                className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 transition"
+              >
+                Dashboard
+              </button>
+            )}
+
             <button
               onClick={handleLogout}
-              className="bg-red-500 px-4 py-2 rounded hover:bg-red-700"
+              className="px-4 py-2 rounded bg-red-500 hover:bg-red-600 transition"
             >
               Logout
             </button>
@@ -39,14 +50,14 @@ const Navbar = () => {
           <>
             <Link
               to="/login"
-              className="mr-4 px-4 py-2 rounded-[10px] bg-blue-500 text-white border border-white hover:bg-blue-700"
+              className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 transition"
             >
               Login
             </Link>
 
             <Link
               to="/register"
-              className="px-4 py-2 rounded-[10px] bg-green-500 text-white border border-white hover:bg-green-700"
+              className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 transition"
             >
               Register
             </Link>
