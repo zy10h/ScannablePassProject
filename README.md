@@ -1,103 +1,102 @@
 # 🎟️ Digital Event Pass Generator (MERN)
 
-A **MERN-based solution** for educational institutions to generate **unique, scannable event passes** for seminars, workshops, and fests.  
-It streamlines **event registration, entry validation, and real-time attendance tracking**, improving **event logistics and security**.
+The **Digital Event Pass Generator** is a MERN application designed for educational institutions to simplify **event registrations and access control**.  
+It generates **secure QR-based passes** for attendees, validates them at entry, and records **attendance in real-time**, ensuring smooth event operations.
 
 ---
 
-## 🚀 Features
+## 🚀 Key Features
 
-- **Event Management (Admin)**
-  - Add, update, and delete events
-  - Set event details such as title, description, date, location, category, seats, etc.
-- **User Registration**
-  - Students/staff can sign up
-  - Register for available events
-- **QR Code Event Passes**
-  - Unique QR code generated for each registration
-  - Scannable at entry for validation
-- **Attendance Tracking**
-  - Real-time tracking of participants on event day
+- **Event Administration**
+  - Create, update, and remove events
+  - Define event details (title, description, venue, date, time, category, seat availability)
+- **User Participation**
+  - Students and staff can register accounts
+  - Sign up for events quickly
+- **QR Passes**
+  - Each registration issues a unique QR code
+  - QR code scanning ensures secure entry
+- **Attendance Monitoring**
+  - Track participation live during the event
 - **Authentication**
-  - Admin & User login with role-based access
+  - Secure login system with separate roles for Admin and User
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Technology Stack
 
 - **Frontend:** React.js
 - **Backend:** Node.js + Express.js
-- **Database:** MongoDB (Mongoose ORM)
+- **Database:** MongoDB (Mongoose)
 - **Authentication:** JWT (JSON Web Tokens)
-- **QR Code:** `qrcode` package
+- **QR Generation:** `qrcode` library
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Layout
 
 ```
 project-root/
 │── backend/          # Express + MongoDB API
-│   ├── models/       # Mongoose models
-│   ├── routes/       # API routes (events, users, auth)
-│   └── controllers/  # Business logic
+│   ├── models/       # Mongoose schemas
+│   ├── routes/       # API routes (events, users, authentication)
+│   └── controllers/  # Core logic
 │
-│── frontend/         # React app
+│── frontend/         # React application
 │   ├── src/components
 │   ├── src/pages
 │   └── src/context
+│   └── src/layout
+│   └── src/assets
 │
 └── README.md
 ```
 
 ---
 
-## 🔑 Credentials (Demo Accounts)
+## 🔑 Demo Accounts
 
-### 👨‍💻 Admin Accounts
+### 👨‍💻 Admins
 
-- **Email:** `admin@gmail.com`  
-  **Password:** `admin123`
+- **Email:** `admin@gmail.com` | **Password:** `admin123`
+- **Email:** `admin2@gmail.com` | **Password:** `admin2123`
 
-- **Email:** `admin2@gmail.com`  
-  **Password:** `admin2123`
+### 👤 User
 
-### 👤 User Account
-
-- **Email:** `test12@gmail.com`  
-  **Password:** `test123`
+- **Email:** `test12@gmail.com` | **Password:** `test123`
 
 ---
 
-## ⚡ Getting Started
+## ⚡ Setup Instructions
 
-### 1️⃣ Clone the Repository
+### 1️⃣ Clone Repository
 
 ```bash
 git clone https://github.com/abdullah-ubaid/ScannablePassProject.git
 ```
 
-### 2️⃣ Setup Backend
+### 2️⃣ Backend Setup
 
 ```bash
 cd backend
 npm install
 ```
 
-- Create a `.env` file inside `backend/` with:
+Create a `.env` file inside `backend/`:
 
-  ```
-  MONGO_URI=your_mongo_connection_string
-  JWT_SECRET=your_secret_key
-  PORT=5000
-  ```
+```
+MONGO_URI=your_mongo_connection_string
+JWT_SECRET=your_secret_key
+PORT=5000
+```
 
-- Run the server:
-  ```bash
-  npm start
-  ```
+Start the backend server:
 
-### 3️⃣ Setup Frontend
+```bash
+npm start
+```
+
+### 3️⃣ Frontend Setup
 
 ```bash
 cd frontend
@@ -107,29 +106,28 @@ npm start
 
 ---
 
-## 📸 Screenshots (Optional)
+## ✅ Future Enhancements
 
-(Add screenshots of event list, registration page, QR pass, and admin dashboard)
-
----
-
-## ✅ Future Improvements
-
-- Email notifications with attached QR passes
-- Multi-role authentication (Super Admin, Organizer, Volunteer)
-- Analytics dashboard for event insights
-- Mobile app integration
+- Automatic email delivery of QR passes
+- Multiple roles (Organizers, Volunteers, Super Admin)
+- Event analytics dashboard
+- Mobile application integration
 
 ---
 
-## 👨‍🏫 Use Case
+## 🎯 Target Use Case
 
-This system is tailored for **schools, colleges, and universities** to:
+Designed primarily for **universities, schools, and colleges**, this system:
 
-- Prevent fake entries with **secure QR validation**
-- Save time with **digital registration**
-- Monitor **attendance in real-time**
+- Prevents unauthorized entries using **QR verification**
+- Eliminates manual registration delays
+- Enables **instant attendance logging**
 
 ---
 
-Jira Url: https://shanabbas.atlassian.net/jira/software/projects/SPP/boards/8/backlog?atlOrigin=eyJpIjoiMjI4MTA2YWQ4ODg0NDdmNWI0N2FiOTFhOWNjZWZiMmQiLCJwIjoiaiJ9
+## 📌 Jira Project
+
+For project management and backlog tracking, visit:  
+👉 [Jira Board](https://shanabbas.atlassian.net/jira/software/projects/SPP/boards/8/backlog?atlOrigin=eyJpIjoiMjI4MTA2YWQ4ODg0NDdmNWI0N2FiOTFhOWNjZWZiMmQiLCJwIjoiaiJ9)
+
+---
