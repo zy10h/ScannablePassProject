@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "../../axiosConfig";
+import { X } from "lucide-react";
 
 const AdminForm = ({ initialData, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -13,155 +14,118 @@ const AdminForm = ({ initialData, onClose, onSubmit }) => {
     description: "",
     image: "",
   });
-
-  const GetById = async (id) => {
-    axiosInstance
-      .get(`/event/getById/${id}`)
-      .then((res) => setFormData(res.data))
-      .catch((err) => console.error("Failed to fetch event:", err));
-  };
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (initialData) {
-      GetById(initialData._id);
-    }
+    const load = async () => {
+      try {
+        if (initialData && initialData._id && Object.keys(initialData).length === 1) {
+          const res = await axiosInstance.get(`/event/get-event/${initialData._id}`);
+          const d = res?.data || {};
+          setFormData({
+            category: d.category || "",
+            title: d.title || "",
+            location: d.location || "",
+            availableSeats: d.availableSeats ?? "",
+            seatsFilled: d.seatsFilled ?? "",
+            date: d.date || "",
+            time: d.time || "",
+            description: d.description || "",
+            image: d.image || "",
+          });
+        } else if (initialData) {
+          setFormData({
+            category: initialData.category || "",
+            title: initialData.title || "",
+            location: initialData.location || "",
+            availableSeats: initialData.availableSeats ?? "",
+            seatsFilled: initialData.seatsFilled ?? "",
+            date: initialData.date || "",
+            time: initialData.time || "",
+            description: initialData.description || "",
+            image: initialData.image || "",
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    load();
   }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const numeric = name === "availableSeats" || name === "seatsFilled";
+    setFormData((prev) => ({ ...prev, [name]: numeric ? String(value) : value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
       const token = localStorage.getItem("token");
+      const payload = {
+        ...formData,
+        availableSeats: Number(formData.availableSeats) || 0,
+        seatsFilled: Number(formData.seatsFilled) || 0,
+      };
       const res = await axiosInstance.put(
         `/event/edit-event/${initialData._id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      onSubmit(res.data);
+      onSubmit?.(res?.data || payload);
     } catch (err) {
-      console.error("Failed to update event:", err);
+      console.error(err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    // backdrop
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-      {/* modal box */}
-      <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition text-xl font-bold"
-        >
-          ×
+    <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl">
+      <div className="flex items-center justify-between px-5 py-4 border-b">
+        <h3 className="font-semibold">Update Event Details</h3>
+        <button onClick={onClose} className="p-2 rounded hover:bg-gray-100">
+          <X size={18} />
         </button>
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">
-          Update Event Details
-        </h2>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <select
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-black focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+            className="w-full px-3 py-2 rounded-lg border"
+            required
           >
-            <option value="">Select Event Category</option>
-            <option value="Workshop">Workshop</option>
-            <option value="Festival">Festival</option>
+            <option value="">Select type</option>
             <option value="Concert">Concert</option>
-            <option value="Meetup">Meetup</option>
+            <option value="Tech Meetup">Tech Meetup</option>
+            <option value="Food Festival">Food Festival</option>
+            <option value="Business Conference">Business Conference</option>
+            <option value="Cultural Event">Cultural Event</option>
+            <option value="Community Fair">Community Fair</option>
+            <option value="Educational Meetup">Educational Meetup</option>
             <option value="Other">Other</option>
           </select>
 
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            placeholder="Event Name"
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-          />
+          <input name="title" value={formData.title} onChange={handleChange} placeholder="Event Name" className="px-3 py-2 rounded-lg border" required />
+          <input name="location" value={formData.location} onChange={handleChange} placeholder="Event Address" className="px-3 py-2 rounded-lg border" />
+          <input type="number" min="0" name="availableSeats" value={formData.availableSeats} onChange={handleChange} placeholder="Available Seats" className="px-3 py-2 rounded-lg border" />
+          <input type="number" min="0" name="seatsFilled" value={formData.seatsFilled} onChange={handleChange} placeholder="Booked Seats" className="px-3 py-2 rounded-lg border" />
+          <input type="date" name="date" value={formData.date} onChange={handleChange} className="px-3 py-2 rounded-lg border" />
+          <input type="time" name="time" value={formData.time} onChange={handleChange} className="px-3 py-2 rounded-lg border" />
+        </div>
 
-          <input
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            placeholder="Event Address"
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-          />
+        <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Description" className="w-full px-3 py-2 rounded-lg border h-24 resize-none" />
+        <input type="url" name="image" value={formData.image} onChange={handleChange} placeholder="Event Link / Image URL (optional)" className="w-full px-3 py-2 rounded-lg border" />
 
-          <input
-            type="text"
-            name="availableSeats"
-            value={formData.availableSeats}
-            onChange={handleChange}
-            placeholder="Available Seats"
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-          />
-
-          <input
-            type="text"
-            name="seatsFilled"
-            value={formData.seatsFilled}
-            onChange={handleChange}
-            placeholder="Seats Filled"
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-          />
-
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-          />
-
-          <input
-            type="time"
-            name="time"
-            value={formData.time}
-            onChange={handleChange}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-          />
-
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            placeholder="Event Description"
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition resize-none h-28"
-          />
-
-          <input
-            type="text"
-            name="image"
-            value={formData.image}
-            onChange={handleChange}
-            placeholder="Paste image URL here"
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-          />
-
-          <button
-            type="submit"
-            disabled={!formData.title}
-            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition"
-          >
-            Update Event
-          </button>
-        </form>
-      </div>
+        <button type="submit" disabled={submitting || !formData.title} className="w-full px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60">
+          {submitting ? "Updating…" : "Update Event"}
+        </button>
+      </form>
     </div>
   );
 };
