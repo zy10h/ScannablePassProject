@@ -19,6 +19,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^6.18.0",
     "mongoose": "^6.0.14",
+    "qrcode": "^1.5.4",
     "request": "^2.88.2",
     "task-manager": "file:.."
   },
