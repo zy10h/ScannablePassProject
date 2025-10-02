@@ -1,24 +1,43 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const connectDB = require("./config/db");
+const authRoutes = require("./routes/authRoutes.js");
+const eventRoutes = require("./routes/eventRoutes.js");
+const Database = require("./core/database.js");
 
 dotenv.config();
 
-const app = express();
+class Server {
+  constructor() {
+    this.app = express();
+    this.port = process.env.PORT || 5001;
 
-app.use(cors());
-app.use(express.json());
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/event", require("./routes/eventRoutes"));
-//app.use('/api/tasks', require('./routes/taskRoutes'));
+    this._middlewares();
+    this._routes();
+  }
 
-// Export the app object for testing
-if (require.main === module) {
-  connectDB();
-  // If the file is run directly, start the server
-  const PORT = process.env.PORT || 5001;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  _middlewares() {
+    this.app.use(cors());
+    this.app.use(express.json());
+  }
+
+  _routes() {
+    this.app.use("/api/auth", authRoutes);
+    this.app.use("/api/event", eventRoutes);
+  }
+
+  start() {
+    new Database();
+
+    this.app.listen(this.port, () =>
+      console.log(`🚀 Server running on port ${this.port}`)
+    );
+  }
 }
 
-module.exports = app;
+if (require.main === module) {
+  const server = new Server();
+  server.start();
+}
+
+module.exports = Server;

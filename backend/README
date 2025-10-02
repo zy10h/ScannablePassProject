@@ -1,0 +1,73 @@
+Go Vibe
+
+Go Vibe is a modern event management and attendance tracking platform. It allows users to register for events, generate QR code tickets, and mark attendance by scanning QR codes. The project is built using Node.js, Express, MongoDB, and React, following Object-Oriented Programming (OOP) principles and multiple design patterns for scalability, maintainability, and modularity.
+
+# How It Works
+
+User Management:
+
+Users can register and log in.
+
+Profiles are encapsulated in OOP entities (UserEntity, AdminEntity) with methods to retrieve profile data and check roles.
+
+Admins have additional privileges (create, update, delete events).
+
+Event Management:
+
+Events are represented by EventEntity objects.
+
+Users can register for events, generating a QR code ticket.
+
+The backend keeps track of registered users and available seats.
+
+QR Code & Attendance:
+
+QR codes are generated for each registered user using the Decorator Pattern.
+
+Scanning the QR code marks the user’s attendance using a strategy defined in the Attendance Strategy.
+
+Attendance data is stored separately from registration for accurate tracking.
+
+PDF Tickets:
+
+Users can download tickets in PDF format with embedded QR codes.
+
+This ensures offline verification and seamless event entry.
+
+## Object-Oriented Programming (OOP)
+====================================
+
+Entities:
+
+UserEntity and AdminEntity encapsulate user data and methods.
+
+EventEntity encapsulates event details and provides methods for registration and attendance handling.
+
+Encapsulation:
+
+All sensitive operations (like password hashing, attendance marking) are encapsulated within classes.
+
+Abstraction:
+
+Controllers interact with facades rather than raw models, hiding implementation details.
+
+Inheritance & Polymorphism:
+
+AdminEntity extends UserEntity with additional admin-only methods.
+
+Different attendance strategies can be swapped dynamically using the Strategy Pattern.
+
+## Design Patterns Used
+====================
+Pattern	Where / Purpose	Usage
+Singleton	Database connection (Database.js)	Ensures a single MongoDB connection across the app.
+Factory	UserFactory.js	Creates UserEntity or AdminEntity based on role.
+Facade	AuthFacade.js, EventFacade.js	Simplifies complex operations (authentication, event registration, attendance) into single methods for controllers.
+Strategy	AttendanceStrategy.js	Allows multiple attendance marking methods (QR scan, manual check-in) to be used interchangeably.
+Proxy	AdminProxy.js	Controls access to admin-only operations like creating or deleting events.
+Observer	AttendanceObserver.js	Observes attendance marking and triggers notifications or logs.
+Decorator	QRCodeDecorator.js	Adds QR code generation to user or ticket objects without modifying core entities.
+
+## Total Design Patterns Used: 7
+================================
+Each pattern ensures the system is modular, extensible, and maintainable, following OOP principles throughout the project.

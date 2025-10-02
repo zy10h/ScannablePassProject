@@ -1,145 +1,89 @@
-const Event = require("../models/Events");
-const mongoose = require("mongoose");
+const EventFacade = require("../facades/EventFacade");
+const QRCodeDecorator = require("../decorators/QRCodeDecorator");
 
-exports.createEvent = async (req, res) => {
-  try {
-    const {
-      title,
-      description,
-      location,
-      date,
-      time,
-      category,
-      image,
-      availableSeats,
-      seatsFilled,
-    } = req.body;
-
-    const event = new Event({
-      title,
-      description,
-      location,
-      date,
-      time,
-      category,
-      image,
-      createdBy: req.user._id,
-      availableSeats,
-      seatsFilled,
-      registeredPeople: [],
-    });
-
-    const savedEvent = await event.save();
-    res.status(201).json(savedEvent);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Failed to create event", details: err.message });
-  }
-};
-
-exports.getAllEvents = async (req, res) => {
-  try {
-    const events = await Event.find().populate("createdBy", "name email");
-    res.json(events);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch events" });
-  }
-};
-
-exports.getEventById = async (req, res) => {
-  const { id } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ error: "Invalid event ID" });
-  }
-
-  try {
-    const event = await Event.findById(id).populate("createdBy", "name email");
-    if (!event) {
-      return res.status(404).json({ error: "Event not found" });
+class EventController {
+  static async createEvent(req, res) {
+    try {
+      const event = await EventFacade.createEvent(req.user, req.body);
+      res.status(201).json(event);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
     }
-    res.json(event);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch event" });
-  }
-};
-
-exports.updateEvent = async (req, res) => {
-  const { id } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ error: "Invalid event ID" });
   }
 
+  static async getAllEvents(req, res) {
+    try {
+      const events = await EventFacade.getAllEvents();
+      res.json(events);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+
+  static async getEventById(req, res) {
+    try {
+      const event = await EventFacade.getEventById(req.params.id);
+      if (!event) return res.status(404).json({ error: "Event not found" });
+      res.json(event);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+
+  static async updateEvent(req, res) {
+    try {
+      const updated = await EventFacade.updateEvent(req.params.id, req.body);
+      if (!updated) return res.status(404).json({ error: "Event not found" });
+      res.json(updated);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+
+  static async deleteEvent(req, res) {
+    try {
+      const deleted = await EventFacade.deleteEvent(req.params.id);
+      if (!deleted) return res.status(404).json({ error: "Event not found" });
+      res.json({ message: "Event deleted successfully" });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+
+static async registerForEvent(req, res) {
   try {
-    const updatedEvent = await Event.findByIdAndUpdate(
-      id,
-      { $set: req.body },
-      { new: true, runValidators: true }
-    );
+    const event = await EventFacade.registerForEvent(req.params.id, req.user._id);
 
-    if (!updatedEvent) {
-      return res.status(404).json({ error: "Event not found" });
-    }
+    const decorator = new QRCodeDecorator(req.user, req.params.id);
+    const qrImage = await decorator.generateQRCode();
 
-    res.json(updatedEvent);
+    res.json({ event, qrCode: qrImage });
   } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Failed to update event", details: err.message });
+    res.status(400).json({ error: err.message });
   }
-};
+}
 
-exports.deleteEvent = async (req, res) => {
-  const { id } = req.params;
+  static async markAttendance(req, res) {
+    try {
+      const { qrData } = req.body;
+      if (!qrData) return res.status(400).json({ error: "QR code data is required" });
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ error: "Invalid event ID" });
-  }
+      const event = await EventFacade.markAttendance(qrData);
 
-  try {
-    const deletedEvent = await Event.findByIdAndDelete(id);
-    if (!deletedEvent) {
-      return res.status(404).json({ error: "Event not found" });
+      res.json({ message: "Attendance marked successfully", event });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
     }
-
-    res.json({ message: "Event deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to delete event" });
-  }
-};
-
-exports.registerForEvent = async (req, res) => {
-  const eventId = req.params.id;
-  const { userId } = req.body;
-
-  if (!userId) {
-    return res.status(400).json({ message: "User ID is required" });
   }
 
-  try {
-    const event = await Event.findById(eventId);
-
-    if (!event) {
-      return res.status(404).json({ message: "Event not found" });
+  static async getEventAttendance(req, res) {
+    try {
+      const attendance = await EventFacade.getEventAttendance(req.params.id);
+      res.json(attendance);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
     }
-
-    if (event.seatsFilled >= event.availableSeats) {
-      return res.status(400).json({ message: "Event is full" });
-    }
-
-    if (event.registeredPeople.includes(userId)) {
-      return res.status(400).json({ message: "User already registered" });
-    }
-
-    event.seatsFilled += 1;
-    event.registeredPeople.push(userId);
-
-    await event.save();
-
-    res.status(200).json({ message: "Registered successfully", event });
-  } catch (err) {
-    res.status(500).json({ message: "Failed to register", error: err.message });
   }
-};
+}
+
+module.exports = EventController;
