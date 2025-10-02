@@ -1,210 +1,111 @@
 import { useState } from "react";
-import DashboardLayout from "../../layout/dashboardLayout";
 import axiosInstance from "../../axiosConfig";
-import Notification from "../notification";
-import Spinner from "../spinner";
+import { X } from "lucide-react";
 
-const AddEventForm = ({ onSubmit }) => {
+export const AddEventModal = ({ onClose, onSubmitted }) => {
   const [formData, setFormData] = useState({
-    category: "seminar",
+    category: "",
     title: "",
     location: "",
     availableSeats: "50",
     seatsFilled: "0",
     description: "",
-    image: null,
+    image: "",
     date: "",
     time: "",
   });
-
-  const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]:
-        name === "availableSeats" || name === "seatsFilled"
-          ? Number(value)
-          : value,
-    });
+    const numeric = name === "availableSeats" || name === "seatsFilled";
+    setFormData((prev) => ({ ...prev, [name]: numeric ? String(value) : value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitting(true);
     try {
-      const data = new FormData();
-      data.append("category", formData.category);
-      data.append("title", formData.title);
-      data.append("location", formData.location);
-      data.append("description", formData.description);
-      data.append("availableSeats", Number(formData.availableSeats));
-      data.append("seatsFilled", Number(formData.seatsFilled));
-      data.append("date", formData.date);
-      data.append("time", formData.time);
-      if (formData.image) {
-        data.append("image", formData.image);
-      }
-
       const token = localStorage.getItem("token");
-
-      const response = await axiosInstance.post(
-        "/event/createEvent",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log("t1", { a: response.status });
-      if (response.status !== 400) {
-        setNotification({
-          message: "Event added successfully!",
-          type: "success",
-        });
-        setFormData({
-          category: "seminar",
-          title: "",
-          location: "",
-          availableSeats: 50,
-          seatsFilled: 0,
-          description: "",
-          image: null,
-          date: "",
-          time: "",
-        });
-        if (onSubmit) onSubmit();
-      } else {
-        setNotification({ message: "Failed to add event.", type: "error" });
-      }
+      const payload = {
+        ...formData,
+        availableSeats: Number(formData.availableSeats) || 0,
+        seatsFilled: Number(formData.seatsFilled) || 0,
+      };
+      const res = await axiosInstance.post("/event/createEvent", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      onSubmitted?.(res?.data || payload);
+      onClose?.();
     } catch (err) {
-      setNotification({ message: "Something went wrong.", type: "error" });
+      console.error(err);
+      alert("Failed to add event.");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <DashboardLayout>
-      {loading && <Spinner />}
-      {notification && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onClose={() => setNotification(null)}
-        />
-      )}
-      <div className="flex justify-center items-center min-h-screen bg-gray-100 px-2">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full relative transition-transform transform hover:scale-105">
-          <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
-            Add New Event
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-5">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onKeyDown={(e) => e.key === "Escape" && onClose?.()}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={onClose}
+      />
+      <div className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl">
+        <div className="flex items-center justify-between px-5 py-4 border-b">
+          <h3 className="font-semibold">Add Event</h3>
+          <button onClick={onClose} className="p-2 rounded hover:bg-gray-100">
+            <X size={18} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-black focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+              className="px-3 py-2 rounded-lg border"
+              required
             >
-              <option value="">Select Event Category</option>
-              <option value="Workshop">Workshop</option>
-              <option value="Festival">Festival</option>
+              <option value="">Select type</option>
               <option value="Concert">Concert</option>
-              <option value="Meetup">Meetup</option>
+              <option value="Tech Meetup">Tech Meetup</option>
+              <option value="Food Festival">Food Festival</option>
+              <option value="Business Conference">Business Conference</option>
+              <option value="Cultural Event">Cultural Event</option>
+              <option value="Community Fair">Community Fair</option>
+              <option value="Educational Meetup">Educational Meetup</option>
               <option value="Other">Other</option>
             </select>
 
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="Event Name"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-            />
+            <input name="title" value={formData.title} onChange={handleChange} placeholder="Event Name" className="px-3 py-2 rounded-lg border" required />
+            <input name="location" value={formData.location} onChange={handleChange} placeholder="Event Address" className="px-3 py-2 rounded-lg border" />
+            <input type="number" min="0" name="availableSeats" value={formData.availableSeats} onChange={handleChange} placeholder="Available Seats" className="px-3 py-2 rounded-lg border" />
+            <input type="number" min="0" name="seatsFilled" value={formData.seatsFilled} onChange={handleChange} placeholder="Booked Seats" className="px-3 py-2 rounded-lg border" />
+            <input type="date" name="date" value={formData.date} onChange={handleChange} className="px-3 py-2 rounded-lg border" />
+            <input type="time" name="time" value={formData.time} onChange={handleChange} className="px-3 py-2 rounded-lg border" />
+          </div>
 
-            <input
-              type="text"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              placeholder="Event Address"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-            />
+          <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Description" className="w-full px-3 py-2 rounded-lg border h-24 resize-none" />
+          <input type="url" name="image" value={formData.image} onChange={handleChange} placeholder="Event Link / Image URL (optional)" className="w-full px-3 py-2 rounded-lg border" />
 
-            <input
-              type="text"
-              name="availableSeats"
-              value={formData.availableSeats}
-              onChange={handleChange}
-              placeholder="Available Seats"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-            />
-
-            <input
-              type="text"
-              name="seatsFilled"
-              value={formData.seatsFilled}
-              onChange={handleChange}
-              placeholder="Seats Filled"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-            />
-
-            <input
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-            />
-
-            <input
-              type="time"
-              name="time"
-              value={formData.time}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-            />
-
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Event Description"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition resize-none h-28"
-            />
-            <input
-              type="text"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              placeholder="Paste image URL here"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-            />
-
-            {/* <input
-              type="text"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              placeholder="Paste image URL here"
-            /> */}
-
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition"
-            >
-              Add Event
-            </button>
-          </form>
-        </div>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+          >
+            {submitting ? "Adding…" : "Add Event"}
+          </button>
+        </form>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 
-export default AddEventForm;
+export default AddEventModal;

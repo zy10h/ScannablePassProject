@@ -15,14 +15,28 @@ import EventDetailPage from "./components/events/singleDetail";
 import Admin from "./components/admin";
 import AddEventForm from "./components/admin/addEvent";
 import ProfileData from "./components/admin/profile";
+import Footer from "./components/footer";
+import NotFound from "./pages/NotFound";
+import RegisterUser from "./components/admin/attendance";
+import Attendance from "./components/attendance";
+
 
 function AppWrapper() {
   const location = useLocation();
-  const hideNavbar = location.pathname.startsWith("/admin");
+  const hideNavbar =
+    location.pathname.startsWith("/admin") ||
+    location.pathname === "/login" ||
+    location.pathname === "/register";
+
+  const hideFooter =
+    location.pathname.startsWith("/admin") ||
+    location.pathname === "/login" ||
+    location.pathname === "/register";
 
   return (
     <>
       {!hideNavbar && <Navbar />}
+
       <Routes>
         <Route path="/" element={<Navigate to="/eventListing" replace />} />
         <Route path="/eventListing" element={<EventsListing />} />
@@ -31,11 +45,15 @@ function AppWrapper() {
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/tasks" element={<Tasks />} />
-
+        <Route path="/attendance" element={<Attendance />} />
         <Route path="/admin-dashboard" element={<Admin />} />
         <Route path="/admin-addevent" element={<AddEventForm />} />
         <Route path="/admin-profile" element={<ProfileData />} />
+        <Route path="/admin-attendance" element={<RegisterUser />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
+
+      {!hideFooter && <Footer />}
     </>
   );
 }
