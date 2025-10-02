@@ -4,6 +4,8 @@ import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
 import axiosInstance from "../../axiosConfig";
 import Notification from "../notification";
+import { FiMapPin, FiCalendar, FiUsers, FiTag, FiCheckCircle } from "react-icons/fi";
+import { EVENTS } from "../constants";
 
 const EventDetailPage = () => {
   const { id } = useParams();
@@ -15,6 +17,7 @@ const EventDetailPage = () => {
   const [check, setCheck] = useState(false);
 
   const event = formData;
+  // const event = EVENTS[id];
   const seatsFull = event.seatsFilled >= event.availableSeats;
 
   const GetById = async (id) => {
@@ -48,26 +51,25 @@ const EventDetailPage = () => {
     try {
       const res = await axiosInstance.post(
         `/event/register-for/${id}`,
-        { userId: id },
+        {},
         {
           headers: { Authorization: `Bearer ${storedToken}` },
         }
       );
 
       if (res.status === 200 || res.status === 201) {
-        const qrMessage = `Registered successfully for ${event.title}`;
-        const qrDataUrl = await QRCode.toDataURL(qrMessage);
+        const { qrCode } = res.data;
 
         const pdf = new jsPDF();
         pdf.setFontSize(20);
         pdf.text(event.title, 105, 30, { align: "center" });
-        pdf.addImage(qrDataUrl, "PNG", 70, 50, 70, 70);
+        pdf.addImage(qrCode, "PNG", 70, 50, 70, 70);
 
         pdf.save(`${event.title}_ticket.pdf`);
 
         setRegistered(true);
         setNotification({
-          message: "Registration successful!",
+          message: "Registration successful! Ticket PDF downloaded.",
           type: "success",
         });
       } else {
@@ -83,6 +85,7 @@ const EventDetailPage = () => {
     }
   };
 
+
   if (!event) {
     return (
       <div className="max-w-4xl mx-auto p-8 text-center text-gray-600">
@@ -93,8 +96,14 @@ const EventDetailPage = () => {
 
   const isRegistered = registered || check;
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-GB");
+  };
+
   return (
-    <div className="max-w-6xl mx-auto p-8">
+    <div className="max-w-6xl w-full mx-auto p-6 my-12">
       {notification && (
         <Notification
           message={notification.message}
@@ -102,8 +111,8 @@ const EventDetailPage = () => {
           onClose={() => setNotification(null)}
         />
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white rounded-2xl shadow-lg overflow-hidden">
-        <div className="w-full h-96 overflow-hidden rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white rounded-2xl overflow-hidden">
+        <div className="w-full h-64 md:h-auto overflow-hidden">
           <img
             src={event.image}
             alt={event.title}
@@ -112,45 +121,51 @@ const EventDetailPage = () => {
         </div>
         <div className="flex flex-col justify-between p-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{event.title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              {event.title}
+            </h1>
             <p className="mt-4 text-gray-600">{event.description}</p>
             <div className="mt-6 space-y-3 text-gray-700">
-              <p>
-                <span className="font-semibold">📍 Location:</span>{" "}
-                {event.location}
+              <p className="flex items-center gap-2">
+                <FiMapPin />
+                <span className="font-semibold">Location:</span> {event.location}
               </p>
-              <p>
-                <span className="font-semibold">📅 Date:</span> {event.date} at{" "}
-                {event.time}
+              <p className="flex items-center gap-2">
+                <FiCalendar />
+                <span className="font-semibold">Date:</span> {formatDate(event.date)} at {event.time}
               </p>
-              <p>
-                <span className="font-semibold">🎟 Seats:</span>{" "}
-                {event.seatsFilled}/{event.availableSeats} booked
+              <p className="flex items-center gap-2">
+                <FiUsers />
+                <span className="font-semibold">Seats:</span> {event.seatsFilled}/{event.availableSeats} booked
               </p>
-              <p>
-                <span className="font-semibold">🏷 Category:</span>{" "}
-                {event.category}
+              <p className="flex items-center gap-2">
+                <FiTag />
+                <span className="font-semibold">Category:</span> {event.category}
               </p>
             </div>
           </div>
           <button
             onClick={handleRegister}
             disabled={isRegistered || seatsFull}
-            className={`mt-6 w-full py-3 px-4 rounded-xl text-white font-semibold transition ${
-              isRegistered || seatsFull
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            className={`mt-6 w-full h-[52px] rounded-[12px] text-white font-semibold transition ${isRegistered || seatsFull
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+              }`}
           >
             {seatsFull
               ? "Seats Full"
               : isRegistered
-              ? "Already Registered ✔"
-              : "Register Now"}
+                ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <FiCheckCircle /> Already Registered
+                  </span>
+                )
+                : "Register Now"}
           </button>
         </div>
       </div>
     </div>
+
   );
 };
 

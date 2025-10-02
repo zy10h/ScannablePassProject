@@ -1,10 +1,10 @@
 import { PieChart, UserCheck, User, LogOut } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import logo from "../assets/GoVibe.png";
+import logo from "../assets/logo.png";
 
 const menuItems = [
   { name: "All Events List", icon: PieChart, path: "/admin-dashboard" },
-  { name: "Reg.users", icon: UserCheck, path: "/" },
+  { name: "Reg.users", icon: UserCheck, path: "/admin-attendance" },
   { name: "Profile", icon: User, path: "/admin-profile" },
 ];
 
@@ -20,8 +20,8 @@ const DashboardLayout = ({ children }) => {
   return (
     <div className="min-h-screen bg-[#F8FBFF] text-gray-900 flex">
       <aside className="flex flex-col w-64 shrink-0 bg-white border-r min-h-screen">
-        <div className="flex items-center gap-2 px-5 h-16">
-          <img src={logo} alt="logo" className="w-12 h-12 rounded" />
+        <div className="flex items-center gap-2 px-5 h-16 cursor-pointer">
+          <img src={logo} alt="logo" className="w-12 h-12 rounded" onClick={()=>navigate("/")}/>
         </div>
 
         <nav className="p-4 space-y-2">

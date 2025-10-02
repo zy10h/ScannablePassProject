@@ -22,10 +22,15 @@ const EventsListing = () => {
     fetchEvents();
   }, []);
 
-  if (loading) return <Spinner/>;
+  if (loading)
+    return (
+      <div className="h-screen flex items-center justify-center bg-white">
+        <Spinner />
+      </div>
+    );
 
   return (
-    <div>
+    <div className="min-h-screen bg-white">
       <EventDetail events={events} />
     </div>
   );
