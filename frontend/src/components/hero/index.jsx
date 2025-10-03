@@ -1,4 +1,17 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 const Hero = () => {
+    const navigate = useNavigate()
+    const [isAuth, setIsAuth] = useState(true)
+    useEffect(() => {
+        const storedToken = localStorage.getItem("token");
+
+        if (storedToken) {
+            setIsAuth(false)
+        }
+
+    }, [])
     return (
         <section className="w-full max-w-[1320px] mx-auto h-auto flex flex-col items-center justify-center text-center py-20 px-6">
             <h1 className="text-[32px] sm:text-[40px] md:text-5xl font-weight-600 font-Poppins text-[#343434]">
@@ -14,11 +27,11 @@ const Hero = () => {
                 instantly and never miss out.
             </p>
 
-            <button className="mt-8 w-[150px] sm:w-[178px] h-[45px] sm:h-[52px] rounded-[15px] border-[1.5px] border-[#F9FAFB] 
-                         bg-[#007AFF] text-white font-medium text-base sm:text-lg flex items-center justify-center">
+            {isAuth && <button className="mt-8 w-[150px] sm:w-[178px] h-[45px] sm:h-[52px] rounded-[15px] border-[1.5px] border-[#F9FAFB] 
+                         bg-[#007AFF] text-white font-medium text-base sm:text-lg flex items-center justify-center" onClick={() => navigate("/register")}>
                 Register Now!
             </button>
-
+            }
         </section>
     );
 };

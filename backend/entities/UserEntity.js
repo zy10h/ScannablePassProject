@@ -1,4 +1,4 @@
-//  using OOP principles to create user entities with methods for profile retrieval and role-based permissions.
+// Using OOP principles to create user entities with methods for profile retrieval and role-based permissions.
 
 class UserEntity {
   constructor(user) {
@@ -32,5 +32,4 @@ class AdminEntity extends UserEntity {
   }
 }
 
-module.exports = { UserEntity, AdminEntity };
-
+export { UserEntity, AdminEntity };

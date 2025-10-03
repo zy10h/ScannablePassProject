@@ -1,6 +1,6 @@
-const express = require("express");
-const EventController = require("../controllers/EventController");
-const { protect } = require("../middleware/authMiddleware");
+import express from "express";
+import protect from "../middleware/authMiddleware.js";
+import EventController from "../controllers/eventController.js";
 
 const router = express.Router();
 
@@ -10,7 +10,8 @@ router.get("/getById/:id", EventController.getEventById);
 router.put("/edit-event/:id", protect, EventController.updateEvent);
 router.delete("/delete-event/:id", protect, EventController.deleteEvent);
 router.post("/register-for/:id", protect, EventController.registerForEvent);
-router.post("/attend", EventController.markAttendance);
-router.get("/:id/attendance", EventController.getEventAttendance);
+router.get("/attendance", EventController.markAttendance);
+router.get("/attendance/all", protect, EventController.getAllAttendance);
+router.get("/:id/attendance", protect, EventController.getEventAttendance);
 
-module.exports = router;
+export default router;

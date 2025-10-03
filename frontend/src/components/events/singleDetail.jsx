@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { jsPDF } from "jspdf";
-import QRCode from "qrcode";
 import axiosInstance from "../../axiosConfig";
 import Notification from "../notification";
 import { FiMapPin, FiCalendar, FiUsers, FiTag, FiCheckCircle } from "react-icons/fi";
-import { EVENTS } from "../constants";
 
 const EventDetailPage = () => {
   const { id } = useParams();
@@ -14,38 +12,40 @@ const EventDetailPage = () => {
   const [registered, setRegistered] = useState(false);
   const [notification, setNotification] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [check, setCheck] = useState(false);
 
   const event = formData;
-  // const event = EVENTS[id];
   const seatsFull = event.seatsFilled >= event.availableSeats;
 
-  const GetById = async (id) => {
-    try {
-      const res = await axiosInstance.get(`/event/getById/${id}`);
-      setFormData(res.data);
-      const userRegistered = res.data.registeredPeople?.includes(res.data._id);
-      setCheck(userRegistered);
-      if (userId && res.data.registeredPeople?.includes(userId)) {
-        setRegistered(true);
-      }
-    } catch (err) {
-      setNotification({ message: "Failed to fetch event", type: "error" });
-    }
-  };
+const GetById = async (id, uid) => {
+  try {
+    const res = await axiosInstance.get(`/event/getById/${id}`);
+    setFormData(res.data);
+    const userRegistered = uid && res.data.registeredPeople?.includes(uid);
+    if (userRegistered) setRegistered(true);
+  } catch (err) {
+    setNotification({ message: "Failed to fetch event", type: "error" });
+  }
+};
+
+
+useEffect(() => {
+  const storedToken = localStorage.getItem("token");
+  const uid = storedToken ? JSON.parse(atob(storedToken.split(".")[1])).id : null;
+  setUserId(uid);
+  if (id) GetById(id, uid); // pass userId directly
+}, [id]);
+
 
   useEffect(() => {
-    if (id) GetById(id);
-  }, [id]);
+    if (id && userId) GetById(id);
+  }, [id, userId]);
 
   const handleRegister = async () => {
     const storedToken = localStorage.getItem("token");
-
     if (!storedToken) {
       navigate("/register", { replace: true });
       return;
     }
-
     if (seatsFull || registered) return;
 
     try {
@@ -56,18 +56,20 @@ const EventDetailPage = () => {
           headers: { Authorization: `Bearer ${storedToken}` },
         }
       );
-
       if (res.status === 200 || res.status === 201) {
         const { qrCode } = res.data;
-
         const pdf = new jsPDF();
         pdf.setFontSize(20);
         pdf.text(event.title, 105, 30, { align: "center" });
         pdf.addImage(qrCode, "PNG", 70, 50, 70, 70);
-
         pdf.save(`${event.title}_ticket.pdf`);
 
         setRegistered(true);
+        setFormData((prev) => ({
+          ...prev,
+          seatsFilled: prev.seatsFilled + 1,
+        }));
+
         setNotification({
           message: "Registration successful! Ticket PDF downloaded.",
           type: "success",
@@ -80,7 +82,7 @@ const EventDetailPage = () => {
       }
     } catch (err) {
       const errorMessage =
-        err.response?.data?.message || "Error registering for the event.";
+        err.response?.data?.error || "Error registering for the event.";
       setNotification({ message: errorMessage, type: "error" });
     }
   };
@@ -94,7 +96,7 @@ const EventDetailPage = () => {
     );
   }
 
-  const isRegistered = registered || check;
+  const isRegistered = registered;
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
@@ -165,7 +167,6 @@ const EventDetailPage = () => {
         </div>
       </div>
     </div>
-
   );
 };
 

@@ -1,7 +1,7 @@
-const AuthFacade = require("../facades/AuthFacade");
-const UserFactory = require("../factories/UserFactory");
-const QRCodeDecorator = require("../decorators/QRCodeDecorator");
-const User = require("../models/User");
+import AuthFacade from "../facades/AuthFacade.js";
+import UserFactory from "../factories/UserFactory.js";
+import QRCodeDecorator from "../decorators/QRCodeDecorator.js";
+import User from "../models/User.js";
 
 class UserController {
   static async register(req, res) {
@@ -21,9 +21,8 @@ class UserController {
           .status(400)
           .json({ message: "Email and password are required" });
       }
-
-      const token = await AuthFacade.login(email, password);
-      res.status(200).json({ token });
+      const { token, role } = await AuthFacade.login(email, password);
+      res.status(200).json({ token, role });
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
@@ -62,6 +61,42 @@ class UserController {
     }
   }
 
+  static async updateUser(req, res) {
+    try {
+      const user = await User.findById(req.params.id);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const { name, email, university, address } = req.body;
+      user.name = name || user.name;
+      user.email = email || user.email;
+      user.university = university || user.university;
+      user.address = address || user.address;
+
+      const updatedUser = await user.save();
+      res.json({
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        university: updatedUser.university,
+        address: updatedUser.address,
+      });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+
+  static async deleteUser(req, res) {
+    try {
+      const user = await User.findById(req.params.id);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      await User.deleteOne({ _id: req.params.id });
+      res.json({ message: "User deleted successfully" });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+
   static async getAllProfiles(req, res) {
     try {
       const users = await User.find();
@@ -92,4 +127,4 @@ class UserController {
   }
 }
 
-module.exports = UserController;
+export default UserController;

@@ -1,4 +1,6 @@
-const Event = require("../models/Events");
+import Event from "../models/Events.js";
+import User from "../models/User.js";
+import Attendance from "../models/Attendance.js";
 
 class EventFacade {
   static async createEvent(user, data) {
@@ -44,30 +46,50 @@ class EventFacade {
     return event;
   }
 
-  static async markAttendance(qrData) {
-    const data = JSON.parse(qrData);
-    const { id: userId, eventId } = data;
-
+  static async markAttendance({ userId, email, eventId }) {
     const event = await Event.findById(eventId);
     if (!event) throw new Error("Event not found");
 
-    if (!event.attendance) event.attendance = [];
-    if (event.attendance.includes(userId))
-      throw new Error("User already marked attendance");
+    const user = await User.findOne({ _id: userId, email });
+    if (!user) throw new Error("User not found");
+    const existing = await Attendance.findOne({
+      user: user._id,
+      event: event._id,
+    });
+    if (existing) throw new Error("Attendance already marked");
 
-    event.attendance.push(userId);
-    await event.save();
-    return event;
+    const attendance = new Attendance({ user: user._id, event: event._id });
+    await attendance.save();
+
+    return {
+      _id: event._id,
+      title: event.title,
+      date: event.date,
+      location: event.location,
+    };
   }
 
   static async getEventAttendance(eventId) {
-    const event = await Event.findById(eventId).populate(
-      "registeredPeople",
+    const attendance = await Attendance.find({ event: eventId }).populate(
+      "user",
       "name email"
     );
-    if (!event) throw new Error("Event not found");
-    return event.registeredPeople;
+    return attendance;
+  }
+
+  static async getAllAttendance() {
+    const attendanceRecords = await Attendance.find()
+      .populate("user", "name email")
+      .populate("event", "title date");
+
+    return attendanceRecords.map((rec) => ({
+      name: rec.user.name,
+      email: rec.user.email,
+      eventTitle: rec.event.title,
+      attendance: rec.present ? "Present" : "Absent",
+      date: rec.date,
+    }));
   }
 }
 
-module.exports = EventFacade;
+export default EventFacade;

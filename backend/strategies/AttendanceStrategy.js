@@ -11,6 +11,4 @@ class AdminCheckStrategy {
     return `${admin.name} checked attendance for event: ${event.title}`;
   }
 }
-
-module.exports = { UserScanStrategy, AdminCheckStrategy };
-
+export { UserScanStrategy, AdminCheckStrategy };

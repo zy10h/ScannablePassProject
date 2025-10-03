@@ -1,5 +1,5 @@
-const EventFacade = require("../facades/EventFacade");
-const QRCodeDecorator = require("../decorators/QRCodeDecorator");
+import EventFacade from "../facades/EventFacade.js";
+import QRCodeDecorator from "../decorators/QRCodeDecorator.js";
 
 class EventController {
   static async createEvent(req, res) {
@@ -50,27 +50,39 @@ class EventController {
     }
   }
 
-static async registerForEvent(req, res) {
-  try {
-    const event = await EventFacade.registerForEvent(req.params.id, req.user._id);
+  static async registerForEvent(req, res) {
+    try {
+      const event = await EventFacade.registerForEvent(
+        req.params.id,
+        req.user._id
+      );
 
-    const decorator = new QRCodeDecorator(req.user, req.params.id);
-    const qrImage = await decorator.generateQRCode();
+      const decorator = new QRCodeDecorator(req.user, req.params.id);
+      const qrImage = await decorator.generateQRCode();
 
-    res.json({ event, qrCode: qrImage });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+      res.json({ event, qrCode: qrImage });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
   }
-}
 
   static async markAttendance(req, res) {
     try {
-      const { qrData } = req.body;
-      if (!qrData) return res.status(400).json({ error: "QR code data is required" });
+      const { id: userId, email, eventId } = req.query;
+      if (!userId || !email || !eventId)
+        return res.status(400).json({ error: "Invalid QR code data" });
 
-      const event = await EventFacade.markAttendance(qrData);
+      const event = await EventFacade.markAttendance({
+        userId,
+        email,
+        eventId,
+      });
 
-      res.json({ message: "Attendance marked successfully", event });
+      res.json({
+        message: "Attendance marked successfully",
+        attendee: { id: userId, email },
+        event,
+      });
     } catch (err) {
       res.status(400).json({ error: err.message });
     }
@@ -79,11 +91,28 @@ static async registerForEvent(req, res) {
   static async getEventAttendance(req, res) {
     try {
       const attendance = await EventFacade.getEventAttendance(req.params.id);
-      res.json(attendance);
+      if (!attendance) {
+        return res.status(404).json({ error: "Attendance not found" });
+      }
+      // example if you want event name
+      const eventName = attendance.event?.name || "Unknown Event";
+      res.json({ attendance, eventName });
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(500).json({ error: err.message });
+    }
+  }
+
+  static async getAllAttendance(req, res) {
+    try {
+      const data = await EventFacade.getAllAttendance();
+      if (!data) {
+        return res.status(404).json({ error: "No attendance records found" });
+      }
+      res.json(data);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
   }
 }
 
-module.exports = EventController;
+export default EventController;

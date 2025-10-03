@@ -1,4 +1,3 @@
-// components/admin/index.jsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   MoreVertical,
@@ -14,16 +13,7 @@ import Notification from "../notification";
 import Spinner from "../spinner";
 import Swal from "sweetalert2";
 
-const CATEGORY_OPTIONS = [
-  "Concert",
-  "Tech Meetup",
-  "Food Festival",
-  "Business Conference",
-  "Cultural Event",
-  "Community Fair",
-  "Educational Meetup",
-  "Other",
-];
+const CATEGORY_OPTIONS = ["Concert", "Festival", "Meetup", "Workshop", "Other"];
 
 const ModalShell = ({ title, onClose, children, footer }) => {
   return (
@@ -31,10 +21,9 @@ const ModalShell = ({ title, onClose, children, footer }) => {
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      onKeyDown={(e) => e.key === "Escape" && onClose?.()}
     >
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl">
+      <div className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <h3 className="font-semibold">{title}</h3>
           <button onClick={onClose} className="p-2 rounded hover:bg-gray-100">
@@ -42,11 +31,12 @@ const ModalShell = ({ title, onClose, children, footer }) => {
           </button>
         </div>
         <div className="p-5">{children}</div>
-        {footer ? <div className="px-5 pb-5">{footer}</div> : null}
+        {footer && <div className="px-5 pb-5">{footer}</div>}
       </div>
     </div>
   );
 };
+
 
 const AddEventModal = ({ onClose, onSubmitted }) => {
   const [form, setForm] = useState({
@@ -107,7 +97,6 @@ const AddEventModal = ({ onClose, onSubmitted }) => {
       }
     >
       <form id="add-form" onSubmit={onSubmit} className="space-y-4">
-        {/* Concert */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">Concert</label>
           <select
@@ -125,8 +114,6 @@ const AddEventModal = ({ onClose, onSubmitted }) => {
             ))}
           </select>
         </div>
-
-        {/* Event Name */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">Event Name</label>
           <input
@@ -138,8 +125,6 @@ const AddEventModal = ({ onClose, onSubmitted }) => {
             required
           />
         </div>
-
-        {/* Available Seats */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">Available Seats</label>
           <input
@@ -152,8 +137,6 @@ const AddEventModal = ({ onClose, onSubmitted }) => {
             className="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-blue-400 outline-none"
           />
         </div>
-
-        {/* Booked Seats */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">Booked Seats</label>
           <input
@@ -166,8 +149,6 @@ const AddEventModal = ({ onClose, onSubmitted }) => {
             className="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-blue-400 outline-none"
           />
         </div>
-
-        {/* Description */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">Description</label>
           <textarea
@@ -178,8 +159,6 @@ const AddEventModal = ({ onClose, onSubmitted }) => {
             className="w-full px-3 py-2 rounded-lg border h-24 resize-none focus:ring-2 focus:ring-blue-400 outline-none"
           />
         </div>
-
-        {/* Event Link */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">Event Link</label>
           <input
@@ -191,8 +170,6 @@ const AddEventModal = ({ onClose, onSubmitted }) => {
             className="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-blue-400 outline-none"
           />
         </div>
-
-        {/* Address / Date / Time */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">Event Address</label>
@@ -204,7 +181,6 @@ const AddEventModal = ({ onClose, onSubmitted }) => {
               className="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-blue-400 outline-none"
             />
           </div>
-
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">Date</label>
             <input
@@ -215,7 +191,6 @@ const AddEventModal = ({ onClose, onSubmitted }) => {
               className="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-blue-400 outline-none"
             />
           </div>
-
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">Time</label>
             <input
@@ -231,7 +206,6 @@ const AddEventModal = ({ onClose, onSubmitted }) => {
     </ModalShell>
   );
 };
-
 
 const EditEventModal = ({ event, onClose, onUpdated }) => {
   const [form, setForm] = useState({
@@ -309,7 +283,6 @@ const EditEventModal = ({ event, onClose, onUpdated }) => {
       }
     >
       <form id="edit-form" onSubmit={onSubmit} className="space-y-4">
-        {/* Concert */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">Concert</label>
           <select
@@ -327,8 +300,6 @@ const EditEventModal = ({ event, onClose, onUpdated }) => {
             ))}
           </select>
         </div>
-
-        {/* Event Name */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">Event Name</label>
           <input
@@ -340,8 +311,6 @@ const EditEventModal = ({ event, onClose, onUpdated }) => {
             required
           />
         </div>
-
-        {/* Available Seats */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">Available Seats</label>
           <input
@@ -354,8 +323,6 @@ const EditEventModal = ({ event, onClose, onUpdated }) => {
             className="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-blue-400 outline-none"
           />
         </div>
-
-        {/* Booked Seats */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">Booked Seats</label>
           <input
@@ -368,8 +335,6 @@ const EditEventModal = ({ event, onClose, onUpdated }) => {
             className="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-blue-400 outline-none"
           />
         </div>
-
-        {/* Description */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">Description</label>
           <textarea
@@ -380,8 +345,6 @@ const EditEventModal = ({ event, onClose, onUpdated }) => {
             className="w-full px-3 py-2 rounded-lg border h-24 resize-none focus:ring-2 focus:ring-blue-400 outline-none"
           />
         </div>
-
-        {/* Event Link */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">Event Link</label>
           <input
@@ -393,7 +356,6 @@ const EditEventModal = ({ event, onClose, onUpdated }) => {
             className="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-blue-400 outline-none"
           />
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">Event Address</label>
@@ -405,7 +367,6 @@ const EditEventModal = ({ event, onClose, onUpdated }) => {
               className="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-blue-400 outline-none"
             />
           </div>
-
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">Date</label>
             <input
@@ -416,7 +377,6 @@ const EditEventModal = ({ event, onClose, onUpdated }) => {
               className="w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-blue-400 outline-none"
             />
           </div>
-
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">Time</label>
             <input
@@ -432,7 +392,6 @@ const EditEventModal = ({ event, onClose, onUpdated }) => {
     </ModalShell>
   );
 };
-
 
 const Pagination = ({ total, page, pageSize, onPage, onPageSize }) => {
   const pages = Math.max(1, Math.ceil(total / pageSize));
@@ -465,11 +424,10 @@ const Pagination = ({ total, page, pageSize, onPage, onPageSize }) => {
               <button
                 key={p}
                 onClick={() => onPage(p)}
-                className={`w-8 h-8 rounded-lg border text-sm ${
-                  active
-                    ? "bg-[#007AFF] text-white border-[#007AFF]"
-                    : "bg-white hover:bg-gray-50"
-                }`}
+                className={`w-8 h-8 rounded-lg border text-sm ${active
+                  ? "bg-[#007AFF] text-white border-[#007AFF]"
+                  : "bg-white hover:bg-gray-50"
+                  }`}
               >
                 {p}
               </button>
@@ -481,25 +439,18 @@ const Pagination = ({ total, page, pageSize, onPage, onPageSize }) => {
   );
 };
 
-
 const Admin = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [notification, setNotification] = useState(null);
   const [query, setQuery] = useState("");
   const [openRow, setOpenRow] = useState(null);
-
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editEvent, setEditEvent] = useState(null);
-
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-
-
-  const [sortKey, setSortKey] = useState(null); 
-  const [sortDir, setSortDir] = useState("asc"); 
-
+  const [sortKey, setSortKey] = useState(null);
+  const [sortDir, setSortDir] = useState("asc");
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -539,20 +490,55 @@ const Admin = () => {
   const getValue = (row, key) => {
     if (key === "availableSeats" || key === "seatsFilled") {
       const v = row[key];
-      return typeof v === "number" ? v : Number(v ?? 0);
+      return typeof v === "number" ? v : Number(v) || 0;
     }
-    return String(row[key] ?? "");
+    return (row[key] || "").toString().toLowerCase();
   };
 
-  const compare = (a, b, key, dir) => {
-    const va = getValue(a, key);
-    const vb = getValue(b, key);
-    if (va < vb) return dir === "asc" ? -1 : 1;
-    if (va > vb) return dir === "asc" ? 1 : -1;
-    return 0;
+  const sorted = useMemo(() => {
+    if (!sortKey) return filtered;
+    const sortedArr = [...filtered].sort((a, b) => {
+      const va = getValue(a, sortKey);
+      const vb = getValue(b, sortKey);
+      if (typeof va === "number" && typeof vb === "number")
+        return va - vb;
+      return va.localeCompare(vb);
+    });
+    return sortDir === "asc" ? sortedArr : sortedArr.reverse();
+  }, [filtered, sortKey, sortDir]);
+
+  const pageData = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return sorted.slice(start, start + pageSize);
+  }, [sorted, page, pageSize]);
+
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This event will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await axiosInstance.delete(`/event/delete-event/${id}`);
+        setEvents((prev) => prev.filter((ev) => ev._id !== id));
+        setNotification({ message: "Event deleted successfully", type: "success" });
+        Swal.fire("Deleted!", "The event has been deleted.", "success");
+      } catch (error) {
+        console.error("Error deleting event:", error);
+        setNotification({ message: "Failed to delete event", type: "error" });
+        Swal.fire("Error!", "Failed to delete the event.", "error");
+      }
+    }
   };
 
-  const requestSort = (key) => {
+  const toggleSort = (key) => {
     if (sortKey === key) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     } else {
@@ -561,55 +547,7 @@ const Admin = () => {
     }
   };
 
-  const sorted = useMemo(() => {
-    if (!sortKey) return filtered;
-    const arr = [...filtered];
-    arr.sort((a, b) => compare(a, b, sortKey, sortDir));
-    return arr;
-  }, [filtered, sortKey, sortDir]);
-
-  const pageData = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return sorted.slice(start, start + pageSize);
-  }, [sorted, page, pageSize]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [query, sortKey, sortDir]);
-
-  const handleDelete = async (id) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "The event will be deleted permanently",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#2563EB",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes",
-    });
-
-    if (result.isConfirmed) {
-      try {
-        const token = localStorage.getItem("token");
-        await axiosInstance.delete(`/event/delete-event/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setEvents((prev) => prev.filter((e) => e._id !== id));
-        setNotification({ message: "Event deleted successfully!", type: "success" });
-      } catch (error) {
-        console.error(error);
-        setNotification({ message: "Failed to delete event.", type: "error" });
-      }
-    }
-  };
-
-  if (loading) {
-    return (
-      <div>
-        <Spinner />
-      </div>
-    );
-  }
+  if (loading) return <Spinner />;
 
   return (
     <DashboardLayout>
@@ -620,152 +558,67 @@ const Admin = () => {
           onClose={() => setNotification(null)}
         />
       )}
-
-      <div className="-mx-4 md:-mx-6 -mt-4 md:-mt-6 bg-white">
-        <div className="px-4 md:px-6">
-          <div className="flex justify-end items-center py-4">
-            <img
-              src="https://ui-avatars.com/api/?name=AD&background=0D8ABC&color=fff"
-              alt="User"
-              className="w-10 h-10 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-      <div className="-mx-6">
-        <div className="w-full border-t border-gray-300 mb-10"></div>
-      </div>
-        {/* Events List + Search bar + Add Event */}
-        <div className="px-4 md:px-6 py-4 flex items-center gap-3">
-          <h2 className="text-lg md:text-4xl font-semibold">Events List</h2>
-
-          <div className="ml-auto flex items-center gap-2">
-            <div className="relative">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                size={16}
-              />
+      <div className="bg-white rounded-2xl shadow-sm p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+          <h2 className="text-xl font-semibold">Event Management</h2>
+          <div className="ml-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
               <input
+                type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search…"
-                className="pl-9 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none w-56 md:w-72"
+                placeholder="Search events..."
+                className="w-full pl-9 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
             </div>
             <button
               onClick={() => setIsAddOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#007AFF] text-white hover:bg-blue-700"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
             >
               <Plus size={16} /> Add Event
             </button>
           </div>
         </div>
-
-      {/* Card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-
-      {/* Table */}
-        <div className="overflow-x-auto">
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-gray-50 text-gray-600">
-                <th className="p-3 font-medium">
-                  <button
-                    className="inline-flex items-center gap-1 hover:underline"
-                    onClick={() => requestSort("category")}
+              <tr className="text-sm text-gray-600">
+                {[
+                  ["title", "Event Name"],
+                  ["location", "Location"],
+                  ["category", "Category"],
+                  ["availableSeats", "Available Seats"],
+                  ["seatsFilled", "Booked Seats"],
+                ].map(([key, label]) => (
+                  <th
+                    key={key}
+                    className="px-4 py-2 cursor-pointer select-none"
+                    onClick={() => toggleSort(key)}
                   >
-                    Event Category
-                    {sortKey === "category" ? (
-                      sortDir === "asc" ? (
-                        <ChevronUp size={16} />
-                      ) : (
-                        <ChevronDown size={16} />
-                      )
-                    ) : (
-                      <ChevronDown size={16} className="opacity-30" />
-                    )}
-                  </button>
-                </th>
-                <th className="p-3 font-medium">
-                  <button
-                    className="inline-flex items-center gap-1 hover:underline"
-                    onClick={() => requestSort("title")}
-                  >
-                    Event Name
-                    {sortKey === "title" ? (
-                      sortDir === "asc" ? (
-                        <ChevronUp size={16} />
-                      ) : (
-                        <ChevronDown size={16} />
-                      )
-                    ) : (
-                      <ChevronDown size={16} className="opacity-30" />
-                    )}
-                  </button>
-                </th>
-                <th className="p-3 font-medium">
-                  <button
-                    className="inline-flex items-center gap-1 hover:underline"
-                    onClick={() => requestSort("location")}
-                  >
-                    Event Address
-                    {sortKey === "location" ? (
-                      sortDir === "asc" ? (
-                        <ChevronUp size={16} />
-                      ) : (
-                        <ChevronDown size={16} />
-                      )
-                    ) : (
-                      <ChevronDown size={16} className="opacity-30" />
-                    )}
-                  </button>
-                </th>
-                <th className="p-3 font-medium">
-                  <button
-                    className="inline-flex items-center gap-1 hover:underline"
-                    onClick={() => requestSort("availableSeats")}
-                  >
-                    Available Seats
-                    {sortKey === "availableSeats" ? (
-                      sortDir === "asc" ? (
-                        <ChevronUp size={16} />
-                      ) : (
-                        <ChevronDown size={16} />
-                      )
-                    ) : (
-                      <ChevronDown size={16} className="opacity-30" />
-                    )}
-                  </button>
-                </th>
-                <th className="p-3 font-medium">
-                  <button
-                    className="inline-flex items-center gap-1 hover:underline"
-                    onClick={() => requestSort("seatsFilled")}
-                  >
-                    Booked Seats
-                    {sortKey === "seatsFilled" ? (
-                      sortDir === "asc" ? (
-                        <ChevronUp size={16} />
-                      ) : (
-                        <ChevronDown size={16} />
-                      )
-                    ) : (
-                      <ChevronDown size={16} className="opacity-30" />
-                    )}
-                  </button>
-                </th>
-                <th className="p-3 font-medium text-right pr-6">Action</th>
+                    <div className="flex items-center gap-1">
+                      {label}
+                      {sortKey === key &&
+                        (sortDir === "asc" ? (
+                          <ChevronUp size={14} />
+                        ) : (
+                          <ChevronDown size={14} />
+                        ))}
+                    </div>
+                  </th>
+                ))}
+                <th className="px-4 py-2">Action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="text-sm">
               {pageData.map((row) => (
                 <tr key={row._id} className="border-t">
-                  <td className="p-3">{row.category || "—"}</td>
-                  <td className="p-3">{row.title || "—"}</td>
-                  <td className="p-3">{row.location || "—"}</td>
-                  <td className="p-3">{row.availableSeats ?? "—"}</td>
-                  <td className="p-3">{row.seatsFilled ?? "—"}</td>
-                  <td className="p-3 pr-6 text-right relative">
+                  <td className="px-4 py-2">{row.title}</td>
+                  <td className="px-4 py-2">{row.location}</td>
+                  <td className="px-4 py-2">{row.category}</td>
+                  <td className="px-4 py-2">{row.availableSeats}</td>
+                  <td className="px-4 py-2">{row.seatsFilled}</td>
+                  <td className="px-4 py-2 relative">
                     <button
                       onClick={() =>
                         setOpenRow(openRow === row._id ? null : row._id)
@@ -774,11 +627,10 @@ const Admin = () => {
                     >
                       <MoreVertical size={18} />
                     </button>
-
                     {openRow === row._id && (
                       <div
                         ref={dropdownRef}
-                        className="absolute right-4 mt-2 w-28 bg-white border rounded-lg shadow-md z-50 text-sm"
+                        className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-md z-10 text-sm"
                       >
                         <button
                           className="block w-full text-left px-4 py-2 hover:bg-gray-50"
@@ -802,47 +654,91 @@ const Admin = () => {
               ))}
               {pageData.length === 0 && (
                 <tr>
-                  <td className="p-8 text-center text-gray-500" colSpan={6}>
-                    No data.
+                  <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
+                    No events found
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-
-        <div className="px-4 md:px-6 py-3 bg-gray-50 border-top">
+        <div className="sm:hidden overflow-x-auto">
+          <div className="flex gap-3 w-max">
+            {pageData.map((row) => (
+              <div key={row._id} className="min-w-[250px] border rounded-lg p-3 shadow-sm flex-shrink-0">
+                <div className="flex justify-between">
+                  <h3 className="font-semibold">{row.title}</h3>
+                  <button
+                    onClick={() =>
+                      setOpenRow(openRow === row._id ? null : row._id)
+                    }
+                    className="p-2 rounded hover:bg-gray-100"
+                  >
+                    <MoreVertical size={18} />
+                  </button>
+                </div>
+                <p className="text-sm text-gray-600">{row.category}</p>
+                <p className="text-sm">{row.location}</p>
+                <div className="flex justify-between text-sm mt-2">
+                  <span>Available: {row.availableSeats}</span>
+                  <span>Booked: {row.seatsFilled}</span>
+                </div>
+                {openRow === row._id && (
+                  <div
+                    ref={dropdownRef}
+                    className="mt-2 w-full bg-white border rounded-lg shadow-md text-sm"
+                  >
+                    <button
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-50"
+                      onClick={() => {
+                        setEditEvent(row);
+                        setOpenRow(null);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-50"
+                      onClick={() => handleDelete(row._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-6">
           <Pagination
             total={sorted.length}
             page={page}
             pageSize={pageSize}
             onPage={setPage}
-            onPageSize={(n) => {
-              setPageSize(n);
+            onPageSize={(size) => {
+              setPageSize(size);
               setPage(1);
             }}
           />
         </div>
       </div>
-
       {isAddOpen && (
         <AddEventModal
           onClose={() => setIsAddOpen(false)}
-          onSubmitted={(newEvent) => {
-            setEvents((prev) => [newEvent, ...prev]);
-          }}
+          onSubmitted={(newEvent) =>
+            setEvents((prev) => [...prev, newEvent])
+          }
         />
       )}
-
       {editEvent && (
         <EditEventModal
           event={editEvent}
           onClose={() => setEditEvent(null)}
-          onUpdated={(updated) => {
+          onUpdated={(updated) =>
             setEvents((prev) =>
-              prev.map((e) => (e._id === updated._id ? updated : e))
-            );
-          }}
+              prev.map((ev) => (ev._id === updated._id ? updated : ev))
+            )
+          }
         />
       )}
     </DashboardLayout>

@@ -1,8 +1,6 @@
-// useing Facade Pattern to simplify authentication processes.
-
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const User = require("../models/User");
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import User from "../models/User.js";
 
 class AuthFacade {
   static async register(data) {
@@ -11,12 +9,12 @@ class AuthFacade {
     return AuthFacade.generateToken(user._id);
   }
 
-  static async login(email, password) {
-    const user = await User.findOne({ email });
+  static async login(email) {
+    const user = await User.findOne({ email }).select("+password");
     if (!user) throw new Error("Invalid credentials");
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) throw new Error("Invalid credentials");
-    return AuthFacade.generateToken(user._id);
+
+    const token = AuthFacade.generateToken(user._id);
+    return { token, role: user.role };
   }
 
   static generateToken(id) {
@@ -24,4 +22,4 @@ class AuthFacade {
   }
 }
 
-module.exports = AuthFacade;
+export default AuthFacade;

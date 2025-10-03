@@ -102,12 +102,9 @@ const AdminForm = ({ initialData, onClose, onSubmit }) => {
           >
             <option value="">Select type</option>
             <option value="Concert">Concert</option>
-            <option value="Tech Meetup">Tech Meetup</option>
-            <option value="Food Festival">Food Festival</option>
-            <option value="Business Conference">Business Conference</option>
-            <option value="Cultural Event">Cultural Event</option>
-            <option value="Community Fair">Community Fair</option>
-            <option value="Educational Meetup">Educational Meetup</option>
+            <option value="Festival">Festival</option>
+            <option value="Meetup">Meetup</option>
+            <option value="Workshop">Workshop</option>
             <option value="Other">Other</option>
           </select>
 
