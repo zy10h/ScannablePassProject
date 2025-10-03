@@ -10,23 +10,23 @@ const UserProfile = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
- const fetchUsers = useCallback(async () => {
-   try {
-     const res = await axiosInstance.get("/auth/users", {
-       headers: {
-         Authorization: `Bearer ${localStorage.getItem("token")}`,
-         "Content-Type": "application/json",
-        },
-      });
-      setUsers(res.data);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-  }, []); 
+const fetchUsers = useCallback(async () => {
+  try {
+    const res = await axiosInstance.get("/auth/users", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+    });
+    setUsers(res.data);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+  }
+}, []);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+useEffect(() => {
+  fetchUsers();
+}, []);
 
 
 
