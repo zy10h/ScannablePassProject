@@ -26,7 +26,7 @@ const fetchUsers = useCallback(async () => {
 
 useEffect(() => {
   fetchUsers();
-}, []);
+}, [fetchUsers]);
 
 
 
@@ -164,7 +164,7 @@ const handleSave = async () => {
                           <PencilIcon className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(user.id)}
+                          onClick={() => handleDelete(user._id)}
                           className="p-2 text-red-600 hover:text-red-800 transition hover:bg-red-100 rounded-lg border border-red-200"
                           title="Delete User"
                         >
