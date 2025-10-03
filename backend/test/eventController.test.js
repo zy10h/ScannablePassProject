@@ -4,18 +4,25 @@ import Event from "../models/Events.js";
 import User from "../models/User.js";
 import EventController from "../controllers/eventController.js";
 
-describe("EventController (with real Mongo)", () => {
+describe("EventController (with Atlas)", function () {
+  this.timeout(20000);
+
   before(async () => {
     mongoose.set("strictQuery", true);
-    await mongoose.connect("mongodb://127.0.0.1:27017/testdb", {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+    const uri = process.env.MONGO_URI
+    if (!uri) {
+      throw new Error("MONGO_URI not set. Please add your Atlas URI to .env");
+    }
+    await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 5000,
     });
   });
 
   after(async () => {
-    await mongoose.connection.dropDatabase();
-    await mongoose.disconnect();
+    if (mongoose.connection.readyState === 1) {
+      await mongoose.connection.dropDatabase();
+      await mongoose.disconnect();
+    }
   });
 
   afterEach(async () => {
@@ -26,12 +33,12 @@ describe("EventController (with real Mongo)", () => {
   it("should create an event", async () => {
     const user = await User.create({
       name: "Test",
-      email: "test@test.com",
+      email: "123456@test.com",
       password: "123456",
     });
 
     const req = {
-      user,
+      user: { _id: user._id },
       body: {
         title: "My Event",
         description: "Desc",
@@ -40,6 +47,7 @@ describe("EventController (with real Mongo)", () => {
         time: "10:00",
       },
     };
+
     let resData;
     const res = {
       status: (code) => ({
