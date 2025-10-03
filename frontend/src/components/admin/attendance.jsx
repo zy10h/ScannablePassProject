@@ -6,9 +6,9 @@ import Spinner from "../spinner";
 const RegisterUser = () => {
   const [attendance, setAttendance] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search] = useState('');
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
 
   useEffect(() => {
     const fetchAttendance = async () => {

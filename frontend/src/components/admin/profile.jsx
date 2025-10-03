@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Swal from "sweetalert2";
 import axiosInstance from "../../axiosConfig";
 import { PencilIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid"; 
@@ -10,21 +10,19 @@ const UserProfile = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const axiosConfig = {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-      "Content-Type": "application/json",
-    },
-  };
-
-  const fetchUsers = async () => {
-    try {
-      const res = await axiosInstance.get("/auth/users", axiosConfig);
+ const fetchUsers = useCallback(async () => {
+   try {
+     const res = await axiosInstance.get("/auth/users", {
+       headers: {
+         Authorization: `Bearer ${localStorage.getItem("token")}`,
+         "Content-Type": "application/json",
+        },
+      });
       setUsers(res.data);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
-  };
+  }, []); 
 
   useEffect(() => {
     fetchUsers();
