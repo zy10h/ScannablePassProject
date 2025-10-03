@@ -27,11 +27,16 @@ class Server {
     this.app.use("/api/event", eventRoutes);
   }
 
-  start() {
-    new Database();
-    this.app.listen(this.port, () =>
-      console.log(`🚀 Server running on port ${this.port}`)
-    );
+  async start() {
+    try {
+      await Database.connect();
+      this.app.listen(this.port, () =>
+        console.log(`🚀 Server running on port ${this.port}`)
+      );
+    } catch (err) {
+      console.error("Failed to start server due to DB error:", err);
+      process.exit(1);
+    }
   }
 }
 
