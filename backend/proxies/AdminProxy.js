@@ -13,4 +13,4 @@ class AdminProxy {
   }
 }
 
-module.exports = AdminProxy;
+export default AdminProxy;

@@ -1,316 +1,254 @@
-import { useState, useRef, useEffect, useMemo } from "react";
-import { MoreVertical, Plus, Search, ChevronUp, ChevronDown } from "lucide-react";
-import DashboardLayout from "../../layout/dashboardLayout";
+import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import axiosInstance from "../../axiosConfig";
-import Notification from "../notification";
-import Spinner from "../spinner";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
+import DashboardLayout from "../../layout/dashboardLayout";
 
-const Pagination = ({ currentPage, totalPages, onPage }) => {
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-
-  return (
-    <div className="flex items-center gap-2">
-      <button
-        onClick={() => currentPage > 1 && onPage(currentPage - 1)}
-        className="w-8 h-8 rounded-lg border bg-gray-100 disabled:opacity-50"
-        disabled={currentPage === 1}
-        aria-label="Previous page"
-      >
-        {"<"}
-      </button>
-
-      {pages.map((p) => {
-        const active = currentPage === p;
-        return (
-          <button
-            key={p}
-            onClick={() => onPage(p)}
-            className={`w-8 h-8 rounded-lg border text-sm ${
-              active
-                ? "bg-[#007AFF] text-white border-[#007AFF]"
-                : "bg-white hover:bg-gray-50"
-            }`}
-          >
-            {p}
-          </button>
-        );
-      })}
-
-      <button
-        onClick={() => currentPage < totalPages && onPage(currentPage + 1)}
-        className="w-8 h-8 rounded-lg border bg-gray-100 disabled:opacity-50"
-        disabled={currentPage === totalPages}
-        aria-label="Next page"
-      >
-        {">"}
-      </button>
-    </div>
-  );
-};
-
-
-const ProfileData = () => {
-  const [openRow, setOpenRow] = useState(null);
+const UserProfile = () => {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [notification, setNotification] = useState(null);
-  const [query, setQuery] = useState("");
-  const dropdownRef = useRef(null);
+  const [search, setSearch] = useState("");
+  const [editingUser, setEditingUser] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-  const [sortKey, setSortKey] = useState(null); // "name" | "address" | "email" | "university"
-  const [sortDir, setSortDir] = useState("asc"); // "asc" | "desc"
+  const axiosConfig = {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      "Content-Type": "application/json",
+    },
+  };
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const fetchUsers = async () => {
+    try {
+      const res = await axiosInstance.get("/auth/users", axiosConfig);
+      setUsers(res.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setOpenRow(null);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await axiosInstance.get("/auth/users");
-        setUsers(res.data || []);
-      } catch (e) {
-        console.error(e);
-        setNotification({ message: "Failed to fetch users", type: "error" });
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchUsers();
   }, []);
 
-  const filtered = useMemo(() => {
-    const q = query.toLowerCase();
-    return users.filter((u) =>
-      (u.name || "").toLowerCase().includes(q) ||
-      (u.address || "").toLowerCase().includes(q) ||
-      (u.email || "").toLowerCase().includes(q) ||
-      (u.university || "").toLowerCase().includes(q)
-    );
-  }, [users, query]);
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axiosInstance.delete(`/auth/delete-users/${id}`, axiosConfig);
+          setUsers(users.filter((user) => user.id !== id));
+          Swal.fire("Deleted!", "User has been deleted.", "success");
+        } catch {
+          Swal.fire("Error!", "Something went wrong.", "error");
+        }
+      }
+    });
+  };
 
-  const getValue = (row, key) => String(row?.[key] ?? "").toLowerCase();
-  const compare = (a, b, key, dir) => {
-    const va = getValue(a, key);
-    const vb = getValue(b, key);
-    if (va < vb) return dir === "asc" ? -1 : 1;
-    if (va > vb) return dir === "asc" ? 1 : -1;
-    return 0;
-    };
-  const requestSort = (key) => {
-    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    else {
-      setSortKey(key);
-      setSortDir("asc");
+  const handleEdit = (user) => {
+    setEditingUser(user);
+    setShowModal(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      await axiosInstance.put(
+        `/auth/edit-users/${editingUser.id}`,
+        editingUser,
+        axiosConfig
+      );
+      setUsers(
+        users.map((user) =>
+          user.id === editingUser.id ? editingUser : user
+        )
+      );
+      setShowModal(false);
+      Swal.fire("Saved!", "User updated successfully.", "success");
+    } catch {
+      Swal.fire("Error!", "Something went wrong.", "error");
     }
   };
-  const sorted = useMemo(() => {
-    if (!sortKey) return filtered;
-    const arr = [...filtered];
-    arr.sort((a, b) => compare(a, b, sortKey, sortDir));
-    return arr;
-  }, [filtered, sortKey, sortDir]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [query, itemsPerPage]);
-
-  const totalPages = Math.max(1, Math.ceil(sorted.length / itemsPerPage));
-  useEffect(() => {
-    if (currentPage > totalPages) setCurrentPage(totalPages);
-  }, [totalPages, currentPage]);
-
-  const firstIdx = (currentPage - 1) * itemsPerPage;
-  const lastIdx = firstIdx + itemsPerPage;
-  const pageRows = sorted.slice(firstIdx, lastIdx);
-
-  if (loading) return (<div><Spinner /></div>);
+  const filteredUsers = users.filter(
+    (u) =>
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <DashboardLayout>
-      {notification && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onClose={() => setNotification(null)}
-        />
-      )}
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-4">Profile</h1>
 
-      <div className="-mx-4 md:-mx-6 -mt-4 md:-mt-6 bg-white">
-        <div className="px-4 md:px-6">
-          <div className="flex justify-end items-center py-4">
-            <img
-              src="https://ui-avatars.com/api/?name=AD&background=0D8ABC&color=fff"
-              alt="User"
-              className="w-10 h-10 rounded-full"
-            />
-          </div>
+        <div className="flex justify-end mb-4">
+          <input
+            type="text"
+            placeholder="Search by name or email"
+            className="border p-2 rounded w-64"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
-      </div>
-      <div className="-mx-6">
-        <div className="w-full border-t border-gray-300 mb-10"></div>
-      </div>
 
-      <div className="px-4 md:px-6 py-4 flex items-center gap-3">
-        <h2 className="text-lg md:text-4xl font-semibold">Profile</h2>
-        <div className="ml-auto flex items-center gap-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search…"
-              className="pl-9 pr-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none w-56 md:w-72"
-            />
-          </div>
-          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
-            <Plus size={16} /> Add Event
-          </button>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
+        {/* Desktop Table */}
+        <div className="hidden md:block">
+          <table className="min-w-full bg-white border border-gray-200">
             <thead>
-              <tr className="bg-gray-50 text-gray-600">
-                <th className="p-3 font-medium">
-                  <button
-                    className="inline-flex items-center gap-1 hover:underline"
-                    onClick={() => requestSort("name")}
-                  >
-                    Name
-                    {sortKey === "name" ? (
-                      sortDir === "asc" ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                    ) : (
-                      <ChevronDown size={16} className="opacity-30" />
-                    )}
-                  </button>
-                </th>
-                <th className="p-3 font-medium">
-                  <button
-                    className="inline-flex items-center gap-1 hover:underline"
-                    onClick={() => requestSort("address")}
-                  >
-                    Address
-                    {sortKey === "address" ? (
-                      sortDir === "asc" ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                    ) : (
-                      <ChevronDown size={16} className="opacity-30" />
-                    )}
-                  </button>
-                </th>
-                <th className="p-3 font-medium">
-                  <button
-                    className="inline-flex items-center gap-1 hover:underline"
-                    onClick={() => requestSort("email")}
-                  >
-                    Email
-                    {sortKey === "email" ? (
-                      sortDir === "asc" ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                    ) : (
-                      <ChevronDown size={16} className="opacity-30" />
-                    )}
-                  </button>
-                </th>
-                <th className="p-3 font-medium">
-                  <button
-                    className="inline-flex items-center gap-1 hover:underline"
-                    onClick={() => requestSort("university")}
-                  >
-                    University
-                    {sortKey === "university" ? (
-                      sortDir === "asc" ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-                    ) : (
-                      <ChevronDown size={16} className="opacity-30" />
-                    )}
-                  </button>
-                </th>
-                <th className="p-3 font-medium text-right pr-6">Action</th>
+              <tr className="bg-gray-100">
+                <th className="py-2 px-4 border">Name</th>
+                <th className="py-2 px-4 border">Email</th>
+                <th className="py-2 px-4 border">Role</th>
+                <th className="py-2 px-4 border">University</th>
+                <th className="py-2 px-4 border">Address</th>
+                <th className="py-2 px-4 border">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {pageRows.map((row) => (
-                <tr key={row._id} className="border-t">
-                  <td className="p-3">{row.name || "—"}</td>
-                  <td className="p-3">{row.address || "—"}</td>
-                  <td className="p-3">{row.email || "—"}</td>
-                  <td className="p-3">{row.university || "—"}</td>
-                  <td className="p-3 pr-6 text-right relative">
+              {filteredUsers.map((user) => (
+                <tr key={user._id} className="hover:bg-gray-50">
+                  <td className="py-2 px-4 border">{user.name}</td>
+                  <td className="py-2 px-4 border">{user.email}</td>
+                  <td className="py-2 px-4 border">{user.role}</td>
+                  <td className="py-2 px-4 border">{user.university}</td>
+                  <td className="py-2 px-4 border">{user.address}</td>
+                  <td className="py-2 px-4 border flex space-x-2">
                     <button
-                      onClick={() => setOpenRow(openRow === row._id ? null : row._id)}
-                      className="p-2 rounded hover:bg-gray-100"
+                      onClick={() => handleEdit(user)}
+                      className="p-1 text-blue-600 hover:text-blue-800 transition"
                     >
-                      <MoreVertical size={18} />
+                      <PencilIcon className="w-5 h-5" />
                     </button>
-                    {openRow === row._id && (
-                      <div
-                        ref={dropdownRef}
-                        className="absolute right-4 mt-2 w-28 bg-white border rounded-lg shadow-md z-50 text-sm"
-                      >
-                        <button className="block w-full text-left px-4 py-2 hover:bg-gray-50">
-                          View
-                        </button>
-                        <button className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-50">
-                          Remove
-                        </button>
-                      </div>
-                    )}
+                    <button
+                      onClick={() => handleDelete(user.id)}
+                      className="p-1 text-red-600 hover:text-red-800 transition"
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
                   </td>
                 </tr>
               ))}
-              {pageRows.length === 0 && (
-                <tr>
-                  <td className="p-8 text-center text-gray-500" colSpan={5}>
-                    No data.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>
 
+        {/* Mobile Cards */}
+        <div className="md:hidden space-y-4">
+          {filteredUsers.map((user) => (
+            <div
+              key={user._id}
+              className="bg-white border rounded p-4 shadow-sm"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="font-bold">{user.name}</h3>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleEdit(user)}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    <PencilIcon className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(user.id)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <TrashIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              <p>
+                <span className="font-semibold">Email:</span> {user.email}
+              </p>
+              <p>
+                <span className="font-semibold">Role:</span> {user.role}
+              </p>
+              <p>
+                <span className="font-semibold">University:</span> {user.university}
+              </p>
+              <p>
+                <span className="font-semibold">Address:</span> {user.address}
+              </p>
+            </div>
+          ))}
+        </div>
 
-<div className="flex flex-col md:flex-row md:items-center justify-between gap-3 text-sm text-gray-600 px-3 py-3">
-  <div>
-    Showing {sorted.length === 0 ? 0 : firstIdx + 1} to{" "}
-    {Math.min(lastIdx, sorted.length)} of {sorted.length} entries
-  </div>
-
-  <div className="flex items-center gap-3">
-    <div className="flex items-center gap-2">
-      <span>Display</span>
-      <select
-        value={itemsPerPage}
-        onChange={(e) => setItemsPerPage(Number(e.target.value))}
-        className="px-3 py-1.5 rounded-md border"
-      >
-        {[5, 10, 20, 50].map((n) => (
-          <option key={n} value={n}>
-            {n}
-          </option>
-        ))}
-      </select>
-    </div>
-
-    <Pagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPage={setCurrentPage}
-    />
-  </div>
-</div>
-
+        {/* Edit Modal */}
+        {showModal && editingUser && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4">
+            <div className="bg-white p-6 rounded w-full max-w-md">
+              <h2 className="text-xl font-bold mb-4">Edit User</h2>
+              <input
+                type="text"
+                placeholder="Name"
+                className="border p-2 mb-2 w-full rounded"
+                value={editingUser.name}
+                onChange={(e) =>
+                  setEditingUser({ ...editingUser, name: e.target.value })
+                }
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                className="border p-2 mb-2 w-full rounded"
+                value={editingUser.email}
+                onChange={(e) =>
+                  setEditingUser({ ...editingUser, email: e.target.value })
+                }
+              />
+              <select
+                className="border p-2 mb-2 w-full rounded"
+                value={editingUser.role}
+                onChange={(e) =>
+                  setEditingUser({ ...editingUser, role: e.target.value })
+                }
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+              <input
+                type="text"
+                placeholder="University"
+                className="border p-2 mb-2 w-full rounded"
+                value={editingUser.university}
+                onChange={(e) =>
+                  setEditingUser({ ...editingUser, university: e.target.value })
+                }
+              />
+              <input
+                type="text"
+                placeholder="Address"
+                className="border p-2 mb-4 w-full rounded"
+                value={editingUser.address}
+                onChange={(e) =>
+                  setEditingUser({ ...editingUser, address: e.target.value })
+                }
+              />
+              <div className="flex justify-end space-x-2">
+                <button
+                  className="bg-gray-300 px-4 py-2 rounded"
+                  onClick={() => setShowModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="bg-green-500 text-white px-4 py-2 rounded"
+                  onClick={handleSave}
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
 };
 
-export default ProfileData;
+export default UserProfile;

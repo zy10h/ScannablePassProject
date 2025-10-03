@@ -1,4 +1,4 @@
-const EventModel = require("../models/Events");
+import EventModel from "../models/Events.js";
 
 class EventEntity {
   constructor(eventDoc) {
@@ -39,4 +39,4 @@ class EventEntity {
   }
 }
 
-module.exports = { EventEntity };
+export default EventEntity;

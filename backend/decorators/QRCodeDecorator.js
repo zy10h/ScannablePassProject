@@ -1,5 +1,4 @@
-// using Decorator Pattern to add QR code generation to user profiles.
-const QRCode = require("qrcode");
+import QRCode from "qrcode";
 
 class QRCodeDecorator {
   constructor(user, eventId = null) {
@@ -8,10 +7,19 @@ class QRCodeDecorator {
   }
 
   async generateQRCode() {
-    const data = { id: this.user.id, email: this.user.email };
-    if (this.eventId) data.eventId = this.eventId;
-    return await QRCode.toDataURL(JSON.stringify(data));
+    const params = new URLSearchParams({
+      id: this.user._id.toString(),
+      email: this.user.email,
+    });
+
+    if (this.eventId) {
+      params.append("eventId", this.eventId);
+    }
+
+    const attendanceUrl = `http://localhost:3000/attendance?${params.toString()}`;
+
+    return await QRCode.toDataURL(attendanceUrl);
   }
 }
 
-module.exports = QRCodeDecorator;
+export default QRCodeDecorator;

@@ -116,30 +116,21 @@ const AuthForm = () => {
                                     {[1, 2, 3].map((level) => (
                                         <div
                                             key={level}
-                                            className={`h-1.5 w-8 rounded ${strengthLevel >= level
-                                                ? level === 1
-                                                    ? "bg-red-500"
-                                                    : level === 2
-                                                        ? "bg-orange-400"
-                                                        : level === 3
-                                                            ? "bg-yellow-400"
-                                                            : "bg-green-500"
-                                                : "bg-gray-200"
-                                                }`}
+                                            className={`h-1.5 w-8 rounded 
+          ${strengthLevel === 1 && level === 1 ? "bg-red-500" : ""}
+          ${strengthLevel === 2 && level <= 2 ? "bg-orange-400" : ""}
+          ${strengthLevel === 3 && level <= 3 ? "bg-green-500" : ""}
+          ${strengthLevel < level ? "bg-gray-200" : ""}
+        `}
                                         ></div>
                                     ))}
                                 </div>
                             )}
+
                             <InputField
                                 label="Password"
                                 name="password"
-                                type={
-                                    formType === "login"
-                                        ? "password"
-                                        : showPassword
-                                            ? "text"
-                                            : "password"
-                                }
+                                type={showPassword ? "text" : "password"}
                                 placeholder="••••••••"
                                 rules={{
                                     required: "Password is required",
@@ -185,14 +176,27 @@ const AuthForm = () => {
                                     />
                                 </div>
                             )}
+                            {formType === "login" && (
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-9 text-gray-500"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
 
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-11 text-gray-500"
-                            >
-                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
+                            )}
+                            {formType === "register" && (
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-12 text-gray-500"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+
+                            )}
+
 
                         </div>
 

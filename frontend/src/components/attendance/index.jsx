@@ -53,13 +53,16 @@ const AttendancePage = () => {
     if (!result) return <div>Marking attendance...</div>;
 
     return (
-        <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-xl h-[65vh]">
-            <h1 className="text-2xl font-bold text-green-600 mb-4">
-                Attendance Confirmed ✅
-            </h1>
-            <p><strong>User:</strong> {result.attendee.email}</p>
-            <p><strong>Event:</strong> {result.event.title}</p>
-            <p><strong>Date:</strong> {new Date(result.event.date).toLocaleDateString()}</p>
+        <div className="h-[65vh]">
+            <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-xl">
+                <h1 className="text-2xl font-bold text-green-600 mb-4">
+                    Attendance Confirmed ✅
+                </h1>
+                <p><strong>User:</strong> {result.attendee.email}</p>
+                <p><strong>Event:</strong> {result.event.title}</p>
+                <p><strong>Date:</strong> {new Date(result.event.date).toLocaleDateString()}</p>
+            </div>
+
         </div>
     );
 };

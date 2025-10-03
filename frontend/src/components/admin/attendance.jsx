@@ -38,7 +38,6 @@ const RegisterUser = () => {
                                 <th className="p-3 font-medium">Name</th>
                                 <th className="p-3 font-medium">Email</th>
                                 <th className="p-3 font-medium">Event</th>
-                                <th className="p-3 font-medium">Attendance</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -54,7 +53,6 @@ const RegisterUser = () => {
                                         <td className="p-3">{row.name}</td>
                                         <td className="p-3">{row.email}</td>
                                         <td className="p-3">{row.eventTitle}</td>
-                                        <td className="p-3">{row.attendance}</td>
                                     </tr>
                                 ))
                             )}
