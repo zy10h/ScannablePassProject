@@ -78,17 +78,22 @@ class EventFacade {
   }
 
   static async getAllAttendance() {
-    const attendanceRecords = await Attendance.find()
-      .populate("user", "name email")
-      .populate("event", "title date");
+    try {
+      const attendanceRecords = await Attendance.find()
+        .populate("user", "name email")
+        .populate("event", "title");
 
-    return attendanceRecords.map((rec) => ({
-      name: rec.user.name,
-      email: rec.user.email,
-      eventTitle: rec.event.title,
-      attendance: rec.present ? "Present" : "Absent",
-      date: rec.date,
-    }));
+      return attendanceRecords.map((rec) => ({
+        name: rec.user?.name || "Unknown",
+        email: rec.user?.email || "Unknown",
+        eventTitle: rec.event?.title || "Unknown",
+        date: rec.date,
+        attendance: rec.present ? "Present" : "Absent",
+      }));
+    } catch (err) {
+      console.error("Error fetching attendance:", err);
+      throw err;
+    }
   }
 }
 

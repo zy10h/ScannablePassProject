@@ -102,17 +102,24 @@ class EventController {
     }
   }
 
-  static async getAllAttendance(req, res) {
-    try {
-      const data = await EventFacade.getAllAttendance();
-      if (!data) {
-        return res.status(404).json({ error: "No attendance records found" });
-      }
-      res.json(data);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+static async getAllAttendance(req, res) {
+  try {
+    console.log("Fetching all attendance...");
+    const data = await EventFacade.getAllAttendance();
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: "No attendance records found" });
     }
+
+    const filteredData = data.filter(record => record && record.name && record.email);
+
+    res.json(filteredData);
+  } catch (err) {
+    console.error("Error in getAllAttendance:", err);
+    res.status(500).json({ error: err.message });
   }
+}
+
 }
 
 export default EventController;
