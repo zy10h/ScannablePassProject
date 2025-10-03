@@ -28,51 +28,65 @@ const UserProfile = () => {
     fetchUsers();
   }, []);
 
-  const handleDelete = (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axiosInstance.delete(`/auth/delete-users/${id}`, axiosConfig);
-          setUsers(users.filter((user) => user.id !== id));
-          Swal.fire("Deleted!", "User has been deleted.", "success");
-        } catch {
-          Swal.fire("Error!", "Something went wrong.", "error");
-        }
+
+
+const handleDelete = (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await axiosInstance.delete(`/auth/delete-users/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        });
+        setUsers(users.filter((user) => user._id !== id));
+        Swal.fire("Deleted!", "User has been deleted.", "success");
+      } catch {
+        Swal.fire("Error!", "Something went wrong.", "error");
       }
-    });
-  };
+    }
+  });
+};
+
+const handleSave = async () => {
+  try {
+    await axiosInstance.put(
+      `/auth/edit-users/${editingUser._id}`,
+      editingUser,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    setUsers(
+      users.map((user) =>
+        user._id === editingUser._id ? editingUser : user
+      )
+    );
+    setShowModal(false);
+    Swal.fire("Saved!", "User updated successfully.", "success");
+  } catch {
+    Swal.fire("Error!", "Something went wrong.", "error");
+  }
+};
 
   const handleEdit = (user) => {
     setEditingUser(user);
     setShowModal(true);
   };
 
-  const handleSave = async () => {
-    try {
-      await axiosInstance.put(
-        `/auth/edit-users/${editingUser.id}`,
-        editingUser,
-        axiosConfig
-      );
-      setUsers(
-        users.map((user) =>
-          user.id === editingUser.id ? editingUser : user
-        )
-      );
-      setShowModal(false);
-      Swal.fire("Saved!", "User updated successfully.", "success");
-    } catch {
-      Swal.fire("Error!", "Something went wrong.", "error");
-    }
-  };
+
 
   const filteredUsers = users.filter(
     (u) =>
