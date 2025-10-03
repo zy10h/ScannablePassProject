@@ -31,7 +31,7 @@
     "mongodb-memory-server": "^10.2.1",
     "nodemon": "^2.0.15",
     "sinon": "^19.0.5",
-    "sinon-chai": "^4.0.1",
+    "sinon-chai": "^3.7.0",
     "supertest": "^7.1.4"
   },
   "author": "Task Manager Team",
