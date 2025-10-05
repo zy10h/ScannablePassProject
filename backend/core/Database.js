@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import dns from "dns";
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
-mongoose.set("strictQuery", true); // suppress warning
+mongoose.set("strictQuery", true);
 
 class Database {
   constructor() {
@@ -11,7 +11,7 @@ class Database {
   }
 
   async connect() {
-    if (this.connection) return this.connection; // already connected
+    if (this.connection) return this.connection;
     try {
       this.connection = await mongoose.connect(process.env.MONGO_URI, {
         useNewUrlParser: true,
