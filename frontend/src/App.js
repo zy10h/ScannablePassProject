@@ -34,27 +34,29 @@ function AppWrapper() {
     location.pathname === "/register";
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       {!hideNavbar && <Navbar />}
 
-      <Routes>
-        <Route path="/" element={<Navigate to="/eventListing" replace />} />
-        <Route path="/eventListing" element={<EventsListing />} />
-        <Route path="/event-details/:id" element={<EventDetailPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/tasks" element={<Tasks />} />
-        <Route path="/attendance" element={<Attendance />} />
-        <Route path="/admin-dashboard" element={<Admin />} />
-        <Route path="/admin-addevent" element={<AddEventForm />} />
-        <Route path="/admin-profile" element={<ProfileData />} />
-        <Route path="/admin-attendance" element={<RegisterUser />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Navigate to="/eventListing" replace />} />
+          <Route path="/eventListing" element={<EventsListing />} />
+          <Route path="/event-details/:id" element={<EventDetailPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/tasks" element={<Tasks />} />
+          <Route path="/attendance" element={<Attendance />} />
+          <Route path="/admin-dashboard" element={<Admin />} />
+          <Route path="/admin-addevent" element={<AddEventForm />} />
+          <Route path="/admin-profile" element={<ProfileData />} />
+          <Route path="/admin-attendance" element={<RegisterUser />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
 
       {!hideFooter && <Footer />}
-    </>
+    </div>
   );
 }
 

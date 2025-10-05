@@ -1,92 +1,84 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import axiosInstance from "../../axiosConfig";
-import { PencilIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid"; 
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import DashboardLayout from "../../layout/dashboardLayout";
+import {
 
+  Edit,
+  Trash2
+} from "lucide-react";
 const UserProfile = () => {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [editingUser, setEditingUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-const fetchUsers = useCallback(async () => {
-  try {
-    const res = await axiosInstance.get("/auth/users", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-        "Content-Type": "application/json",
-      },
-    });
-    setUsers(res.data);
-  } catch (error) {
-    console.error("Error fetching users:", error);
-  }
-}, []);
+  const axiosConfig = {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      "Content-Type": "application/json",
+    },
+  };
 
-useEffect(() => {
-  fetchUsers();
-}, [fetchUsers]);
-
-
-
-const handleDelete = (id) => {
-  Swal.fire({
-    title: "Are you sure?",
-    text: "You won't be able to revert this!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
-    confirmButtonText: "Yes, delete it!",
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        await axiosInstance.delete(`/auth/delete-users/${id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
-          },
-        });
-        setUsers(users.filter((user) => user._id !== id));
-        Swal.fire("Deleted!", "User has been deleted.", "success");
-      } catch {
-        Swal.fire("Error!", "Something went wrong.", "error");
-      }
+  const fetchUsers = async () => {
+    try {
+      const res = await axiosInstance.get("/auth/users", axiosConfig);
+      setUsers(res.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
     }
-  });
-};
+  };
 
-const handleSave = async () => {
-  try {
-    await axiosInstance.put(
-      `/auth/edit-users/${editingUser._id}`,
-      editingUser,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axiosInstance.delete(`/auth/delete-users/${id}`, axiosConfig);
+          setUsers(users.filter((user) => user.id !== id));
+          Swal.fire("Deleted!", "User has been deleted.", "success");
+        } catch {
+          Swal.fire("Error!", "Something went wrong.", "error");
+        }
       }
-    );
-    setUsers(
-      users.map((user) =>
-        user._id === editingUser._id ? editingUser : user
-      )
-    );
-    setShowModal(false);
-    Swal.fire("Saved!", "User updated successfully.", "success");
-  } catch {
-    Swal.fire("Error!", "Something went wrong.", "error");
-  }
-};
+    });
+  };
 
   const handleEdit = (user) => {
     setEditingUser(user);
     setShowModal(true);
   };
 
-
+  const handleSave = async () => {
+    try {
+      await axiosInstance.put(
+        `/auth/edit-users/${editingUser.id}`,
+        editingUser,
+        axiosConfig
+      );
+      setUsers(
+        users.map((user) =>
+          user.id === editingUser.id ? editingUser : user
+        )
+      );
+      setShowModal(false);
+      Swal.fire("Saved!", "User updated successfully.", "success");
+    } catch {
+      Swal.fire("Error!", "Something went wrong.", "error");
+    }
+  };
 
   const filteredUsers = users.filter(
     (u) =>
@@ -96,9 +88,9 @@ const handleSave = async () => {
 
   return (
     <DashboardLayout>
-      <div className="px-6 py-4">
+      <div className="px-2 py-2">
         <div className="hidden md:block overflow-x-auto bg-white rounded-2xl shadow-sm border border-gray-200">
-          <div className="p-[2rem] flex  justify-between gap-4">
+          <div className="p-[1rem] flex  justify-between gap-4">
             <h2 className="text-2xl font-semibold text-gray-800">Profile Management</h2>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -161,14 +153,14 @@ const handleSave = async () => {
                           className="p-2 text-blue-600 hover:text-blue-800 transition hover:bg-blue-100 rounded-lg border border-blue-200"
                           title="Edit User"
                         >
-                          <PencilIcon className="w-4 h-4" />
+                          <Edit className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(user._id)}
+                          onClick={() => handleDelete(user.id)}
                           className="p-2 text-red-600 hover:text-red-800 transition hover:bg-red-100 rounded-lg border border-red-200"
                           title="Delete User"
                         >
-                          <TrashIcon className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
@@ -178,8 +170,6 @@ const handleSave = async () => {
             </tbody>
           </table>
         </div>
-
-        {/* Mobile Cards */}
         <div className="md:hidden space-y-4">
           {filteredUsers.map((user) => (
             <div
@@ -196,38 +186,44 @@ const handleSave = async () => {
                     onClick={() => handleEdit(user)}
                     className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-lg border border-blue-200"
                   >
-                    <PencilIcon className="w-4 h-4" />
+                    <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(user.id)}
                     className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg border border-red-200"
                   >
-                    <TrashIcon className="w-4 h-4" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-gray-600 text-sm">Role:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${user.role === 'admin'
-                    ? 'bg-purple-100 text-purple-800'
-                    : 'bg-green-100 text-green-800'
-                    }`}>
+
+              <div className="divide-y divide-gray-200 text-sm">
+                <div className="flex justify-between items-center py-2">
+                  <span className="font-semibold text-gray-600">Role:</span>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${user.role === "admin"
+                      ? "bg-purple-100 text-purple-800"
+                      : "bg-green-100 text-green-800"
+                      }`}
+                  >
                     {user.role}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-semibold text-gray-600 text-sm">University:</span>
-                  <span className="text-gray-700 text-sm">{user.university || '-'}</span>
+                <div className="flex justify-between items-center py-2">
+                  <span className="font-semibold text-gray-600">University:</span>
+                  <span className="text-gray-700">{user.university || "-"}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-semibold text-gray-600 text-sm">Address:</span>
-                  <span className="text-gray-700 text-sm text-right max-w-[150px]">{user.address || '-'}</span>
+                <div className="flex justify-between items-center py-2">
+                  <span className="font-semibold text-gray-600">Address:</span>
+                  <span className="text-gray-700 text-right max-w-[150px]">
+                    {user.address || "-"}
+                  </span>
                 </div>
               </div>
             </div>
           ))}
         </div>
+
 
         {/* Edit Modal */}
         {showModal && editingUser && (

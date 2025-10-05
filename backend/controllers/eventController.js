@@ -94,7 +94,6 @@ class EventController {
       if (!attendance) {
         return res.status(404).json({ error: "Attendance not found" });
       }
-      // example if you want event name
       const eventName = attendance.event?.name || "Unknown Event";
       res.json({ attendance, eventName });
     } catch (err) {

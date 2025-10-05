@@ -42,11 +42,12 @@ class UserController {
       const user = await User.findById(req.user.id);
       if (!user) return res.status(404).json({ message: "User not found" });
 
-      const { name, email, university, address } = req.body;
+      const { name, email, university, address, role } = req.body;
       user.name = name || user.name;
       user.email = email || user.email;
       user.university = university || user.university;
       user.address = address || user.address;
+      user.role = role || user.role;
 
       const updatedUser = await user.save();
       res.json({
@@ -55,6 +56,7 @@ class UserController {
         email: updatedUser.email,
         university: updatedUser.university,
         address: updatedUser.address,
+        role: updatedUser.role,
       });
     } catch (err) {
       res.status(500).json({ message: err.message });
@@ -66,11 +68,12 @@ class UserController {
       const user = await User.findById(req.params.id);
       if (!user) return res.status(404).json({ message: "User not found" });
 
-      const { name, email, university, address } = req.body;
+      const { name, email, university, address, role } = req.body;
       user.name = name || user.name;
       user.email = email || user.email;
       user.university = university || user.university;
       user.address = address || user.address;
+      user.role = role || user.role;
 
       const updatedUser = await user.save();
       res.json({
@@ -79,6 +82,7 @@ class UserController {
         email: updatedUser.email,
         university: updatedUser.university,
         address: updatedUser.address,
+        role: updatedUser.role,
       });
     } catch (err) {
       res.status(500).json({ message: err.message });
@@ -106,6 +110,7 @@ class UserController {
         email: user.email,
         university: user.university,
         address: user.address,
+        role: user.role,
       }));
       res.json(userData);
     } catch (err) {

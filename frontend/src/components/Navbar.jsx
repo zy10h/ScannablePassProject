@@ -20,32 +20,31 @@ const Navbar = () => {
   };
 
   const isAdmin = user?.role === "admin";
+
   return (
     <nav className="bg-[#E5F0FB]">
-      <div className="w-full max-w-[1512px] mx-auto text-white py-6 px-6 md:px-20 flex justify-between items-center">
-
-        <Link to="/" className="flex items-center">
+      <div className="w-full max-w-[1512px] mx-auto py-4 px-4 md:px-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <Link to="/" className="flex items-center justify-center sm:justify-start">
           <img
             src={logo}
             alt="Logo"
-            className="w-[52px] h-[52px] rounded-[12px]"
+            className="w-[42px] h-[42px] md:w-[52px] md:h-[52px] rounded-[12px]"
           />
         </Link>
-
-        <div className="flex items-center gap-6 flex-wrap">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
           {user ? (
             <>
               {isAdmin && (
                 <button
                   onClick={handleProfileClick}
-                  className="px-4 py-2 rounded-[15px] bg-[#007AFF] hover:bg-gray-700 transition text-sm md:text-base w-[19vh]"
+                  className="px-5 py-2 rounded-[15px] bg-[#007AFF] hover:bg-blue-700 transition text-sm md:text-base font-medium text-white w-full sm:w-auto"
                 >
                   Dashboard
                 </button>
               )}
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 rounded-[15px] bg-red-500  hover:bg-red-600 transition text-sm md:text-base w-[19vh]"
+                className="px-5 py-2 rounded-[15px] bg-red-500 hover:bg-red-600 transition text-sm md:text-base font-medium text-white w-full sm:w-auto"
               >
                 Logout
               </button>
@@ -54,21 +53,23 @@ const Navbar = () => {
             <>
               <Link
                 to="/login"
-                className="px-4 py-2 rounded-[15px] 
-        bg-[#007AFF] hover:bg-red-600 transition text-sm md:text-base w-[16vh] cursor-pointer transition hover:bg-[#0062cc] hover:shadow-md font-poppins font-normal flex items-center justify-center gap-[10px]"
+                className="px-5 py-2.5 rounded-[15px] 
+  bg-[#007AFF] hover:bg-blue-600 transition 
+  text-sm md:text-base font-medium text-white 
+  w-full sm:w-auto flex items-center justify-center h-[44px]"
               >
                 Login
               </Link>
+
               <Link
                 to="/register"
-                className="px-4 py-2 rounded-[15px] border border-[#6B7280] bg-transparent 
-             transition text-sm md:text-base flex items-center justify-center gap-[10px] 
-             font-poppins font-normal text-[16px] md:text-[18px] leading-[100%] 
-             text-[#6B7280] cursor-pointer hover:bg-[#e5e7eb] hover:text-[#374151] hover:shadow-md"
+                className="px-5 py-2.5 rounded-[15px] border border-[#6B7280] bg-transparent 
+  transition text-sm md:text-base font-medium text-[#6B7280] 
+  w-full sm:w-auto flex items-center justify-center h-[44px]
+  hover:bg-[#e5e7eb] hover:text-[#374151] hover:shadow-md"
               >
                 Create Account
               </Link>
-
             </>
           )}
         </div>
