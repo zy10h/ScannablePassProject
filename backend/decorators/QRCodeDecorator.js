@@ -16,7 +16,7 @@ class QRCodeDecorator {
       params.append("eventId", this.eventId);
     }
 
-    const attendanceUrl = `http://localhost:3000/attendance?${params.toString()}`;
+    const attendanceUrl = `http://13.54.229.16/:3000/attendance?${params.toString()}`;
 
     return await QRCode.toDataURL(attendanceUrl);
   }
