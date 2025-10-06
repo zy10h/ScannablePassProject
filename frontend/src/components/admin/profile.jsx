@@ -21,7 +21,16 @@ const UserProfile = () => {
     },
   };
 
-  const fetchUsers = async () => {
+
+useEffect(() => {
+  const axiosConfig = {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      "Content-Type": "application/json",
+    },
+  };
+
+  const run = async () => {
     try {
       const res = await axiosInstance.get("/auth/users", axiosConfig);
       setUsers(res.data);
@@ -29,18 +38,9 @@ const UserProfile = () => {
       console.error("Error fetching users:", error);
     }
   };
+  run();
+}, []); 
 
-  useEffect(() => {
-    const run = async () => {
-      try {
-        const res = await axiosInstance.get("/auth/users", axiosConfig);
-        setUsers(res.data);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-    run();
-  }, []);
 
   const handleDelete = (id) => {
     Swal.fire({
