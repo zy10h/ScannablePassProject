@@ -31,8 +31,10 @@ const UserProfile = () => {
   };
 
   useEffect(() => {
+    const fetchUsers = async () => {
+    };
     fetchUsers();
-  }, [fetchUsers]);
+  }, [token, userId]);
 
   const handleDelete = (id) => {
     Swal.fire({

@@ -42,8 +42,10 @@ const EventDetailPage = () => {
   }, []);
 
   useEffect(() => {
+    const GetById = async () => {
+    };
     GetById();
-  }, [GetById]);
+  }, [eventId]);
 
 
   const handleRegister = async () => {

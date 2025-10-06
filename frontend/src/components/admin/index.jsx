@@ -456,7 +456,8 @@ const Admin = () => {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [setOpenRow]);
+
 
   useEffect(() => {
     (async () => {
