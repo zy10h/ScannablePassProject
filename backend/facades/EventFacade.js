@@ -81,24 +81,33 @@ static async getAllAttendance() {
   try {
     const attendanceRecords = await Attendance.find()
       .populate("user", "name email")
-      .populate("event", "title");
+      .populate("event", "title date");
+
+    const toYMD = (v) => {
+      if (!v) return undefined;
+      const d = new Date(v);
+      if (!isNaN(d)) return d.toISOString().slice(0, 10);
+      return String(v).slice(0, 10);
+    };
 
     return attendanceRecords.map((rec) => ({
       name: rec.user?.name || "Unknown",
       email: rec.user?.email || "Unknown",
       eventTitle: rec.event?.title || "Unknown",
-      attendance: rec.status || "Present", // 用 status 映射到 attendance
-      date: rec.date
-        ? rec.date.toISOString().slice(0, 10)
-        : rec.timestamp
-        ? new Date(rec.timestamp).toISOString().slice(0, 10)
-        : undefined,
+      attendance:
+        rec.attendance ??
+        rec.status ??
+        (typeof rec.present === "boolean"
+          ? rec.present ? "Present" : "Absent"
+          : undefined),
+      date: toYMD(rec.date ?? rec.timestamp ?? rec.createdAt ?? rec.event?.date),
     }));
   } catch (err) {
     console.error("Error fetching attendance:", err);
     throw err;
   }
 }
+
 
 
 }
