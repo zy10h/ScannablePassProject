@@ -22,16 +22,7 @@ const EventDetailPage = () => {
   const event = formData;
   const seatsFull = event.seatsFilled >= event.availableSeats;
 
-  const GetById = async (id) => {
-    try {
-      const res = await axiosInstance.get(`/event/getById/${id}`);
-      setFormData(res.data);
-      const userRegistered = res.data.registeredPeople?.includes(userId);
-      if (userRegistered) setRegistered(true);
-    } catch (err) {
-      setNotification({ message: "Failed to fetch event", type: "error" });
-    }
-  };
+
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -42,8 +33,19 @@ const EventDetailPage = () => {
   }, []);
 
   useEffect(() => {
-    GetById(id);
-  }, [id]);
+    const run = async () => {
+      try {
+        const res = await axiosInstance.get(`/event/getById/${id}`);
+        setFormData(res.data);
+        const userRegistered = res.data.registeredPeople?.includes(userId);
+        if (userRegistered) setRegistered(true);
+      } catch (err) {
+        setNotification({ message: "Failed to fetch event", type: "error" });
+      }
+    };
+    if (id) run();
+  }, [id, userId]);
+
 
 
   const handleRegister = async () => {

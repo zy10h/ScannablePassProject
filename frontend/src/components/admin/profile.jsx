@@ -31,7 +31,15 @@ const UserProfile = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
+    const run = async () => {
+      try {
+        const res = await axiosInstance.get("/auth/users", axiosConfig);
+        setUsers(res.data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    run();
   }, []);
 
   const handleDelete = (id) => {
