@@ -87,16 +87,19 @@ static async getAllAttendance() {
       name: rec.user?.name || "Unknown",
       email: rec.user?.email || "Unknown",
       eventTitle: rec.event?.title || "Unknown",
-      status: rec.status,
-      timestamp: rec.timestamp,
-      createdAt: rec.createdAt,
-      updatedAt: rec.updatedAt,
+      attendance: rec.status || "Present", // 用 status 映射到 attendance
+      date: rec.date
+        ? rec.date.toISOString().slice(0, 10)
+        : rec.timestamp
+        ? new Date(rec.timestamp).toISOString().slice(0, 10)
+        : undefined,
     }));
   } catch (err) {
     console.error("Error fetching attendance:", err);
     throw err;
   }
 }
+
 
 }
 
