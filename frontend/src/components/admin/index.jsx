@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  MoreVertical,
   Plus,
   Search,
   X,
@@ -440,7 +439,7 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
   const [query, setQuery] = useState("");
-  const [openRow, setOpenRow] = useState(null);
+  const [setOpenRow] = useState(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editEvent, setEditEvent] = useState(null);
   const [page, setPage] = useState(1);

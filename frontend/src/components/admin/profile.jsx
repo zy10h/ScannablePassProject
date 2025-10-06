@@ -32,7 +32,7 @@ const UserProfile = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const handleDelete = (id) => {
     Swal.fire({

@@ -42,8 +42,9 @@ const EventDetailPage = () => {
   }, []);
 
   useEffect(() => {
-    if (id && userId) GetById(id);
-  }, [id, userId]);
+    GetById();
+  }, [GetById]);
+
 
   const handleRegister = async () => {
     const storedToken = localStorage.getItem("token");
